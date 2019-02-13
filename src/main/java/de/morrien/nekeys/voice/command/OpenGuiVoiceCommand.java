@@ -1,0 +1,97 @@
+package de.morrien.nekeys.voice.command;
+
+import de.morrien.nekeys.gui.voice.GuiVoiceCommand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiControls;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.inventory.GuiInventory;
+
+import java.util.List;
+
+/**
+ * Created by Timor Morrien
+ */
+public class OpenGuiVoiceCommand extends AbstractVoiceCommand {
+
+    protected AllowedGuis gui;
+
+    protected OpenGuiVoiceCommand() {
+    }
+
+    public OpenGuiVoiceCommand(String name, String command, AllowedGuis gui) {
+        super(name, command);
+        this.gui = gui;
+    }
+
+    @Override
+    public void activate(String voiceCommand) {
+        if (gui != null) {
+            gui.openGui();
+        }
+    }
+
+    @Override
+    public List<String> getConfigParams() {
+        List<String> params = super.getConfigParams();
+        params.add(gui.name());
+        return params;
+    }
+
+    @Override
+    public void fromConfigParams(String[] params) {
+        super.fromConfigParams(params);
+        this.gui = AllowedGuis.valueOf(params[3]);
+    }
+
+    public AllowedGuis getGui() {
+        return gui;
+    }
+
+    public void setGui(AllowedGuis gui) {
+        this.gui = gui;
+    }
+
+    public enum AllowedGuis {
+        MENU("gui.nekeys.mainmenu.name") {
+            @Override
+            public void openGui() {
+                if (Minecraft.getMinecraft().world == null) {
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
+                } else {
+                    Minecraft.getMinecraft().displayInGameMenu();
+                }
+            }
+        },
+        CONTROLS("gui.nekeys.controls.name") {
+            @Override
+            public void openGui() {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiControls(null, Minecraft.getMinecraft().gameSettings));
+            }
+        },
+        VOICE_COMMANDS("gui.nekeys.voice_commands.title") {
+            @Override
+            public void openGui() {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiVoiceCommand());
+            }
+        },
+        INVENTORY("gui.nekeys.inventory.name") {
+            @Override
+            public void openGui() {
+                if (Minecraft.getMinecraft().world != null)
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiInventory(Minecraft.getMinecraft().player));
+            }
+        };
+
+        public final String unlocalizedName;
+
+        AllowedGuis(String unlocalizedName) {
+            this.unlocalizedName = unlocalizedName;
+        }
+
+        public abstract void openGui();
+
+        public boolean active() {
+            return true;
+        }
+    }
+}
