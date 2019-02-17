@@ -1,5 +1,9 @@
 package de.morrien.nekeys.voice.command;
 
+import de.morrien.nekeys.api.VoiceCommandFactory;
+import de.morrien.nekeys.api.command.IVoiceCommandTickable;
+import de.morrien.nekeys.api.popup.AbstractPopup;
+import de.morrien.nekeys.gui.voice.popup.SimpleKeybindPopup;
 import net.minecraft.client.settings.KeyBinding;
 
 /**
@@ -9,7 +13,8 @@ public class SimpleVoiceKeybind extends AbstractVoiceKeybind implements IVoiceCo
 
     private int ticksLeft;
 
-    private SimpleVoiceKeybind() {}
+    private SimpleVoiceKeybind() {
+    }
 
     public SimpleVoiceKeybind(String name, String command, KeyBinding keybind) {
         super(name, command, keybind);
@@ -30,6 +35,26 @@ public class SimpleVoiceKeybind extends AbstractVoiceKeybind implements IVoiceCo
             if (ticksLeft == 0) {
                 KeyBinding.setKeyBindState(keybind.getKeyCode(), false);
             }
+        }
+    }
+
+    public static class Factory extends VoiceCommandFactory<SimpleVoiceKeybind> {
+
+        @Override
+        public SimpleVoiceKeybind newCommand(String[] params) {
+            SimpleVoiceKeybind voiceCommand = new SimpleVoiceKeybind();
+            voiceCommand.fromConfigParams(params);
+            return voiceCommand;
+        }
+
+        @Override
+        public SimpleVoiceKeybind newCommand(String name, String rule) {
+            return new SimpleVoiceKeybind(name, rule, null);
+        }
+
+        @Override
+        public AbstractPopup newPopup(SimpleVoiceKeybind command) {
+            return new SimpleKeybindPopup(command);
         }
     }
 }

@@ -1,6 +1,9 @@
 package de.morrien.nekeys.voice.command.thaumcraft;
 
-import de.morrien.nekeys.voice.command.AbstractVoiceCommand;
+import de.morrien.nekeys.api.VoiceCommandFactory;
+import de.morrien.nekeys.api.command.AbstractVoiceCommand;
+import de.morrien.nekeys.api.popup.AbstractPopup;
+import de.morrien.nekeys.gui.voice.popup.thaumcraft.SelectFocusPopup;
 import net.minecraft.client.Minecraft;
 import thaumcraft.common.lib.network.PacketHandler;
 import thaumcraft.common.lib.network.misc.PacketFocusChangeToServer;
@@ -48,5 +51,25 @@ public class SelectFocusVoiceCommand extends AbstractVoiceCommand {
 
     public void setFociHash(String fociHash) {
         this.fociHash = fociHash;
+    }
+
+    public static class Factory extends VoiceCommandFactory<SelectFocusVoiceCommand> {
+
+        @Override
+        public SelectFocusVoiceCommand newCommand(String[] params) {
+            SelectFocusVoiceCommand voiceCommand = new SelectFocusVoiceCommand();
+            voiceCommand.fromConfigParams(params);
+            return voiceCommand;
+        }
+
+        @Override
+        public SelectFocusVoiceCommand newCommand(String name, String rule) {
+            return new SelectFocusVoiceCommand(name, rule, "REMOVE");
+        }
+
+        @Override
+        public AbstractPopup newPopup(SelectFocusVoiceCommand command) {
+            return new SelectFocusPopup(command);
+        }
     }
 }

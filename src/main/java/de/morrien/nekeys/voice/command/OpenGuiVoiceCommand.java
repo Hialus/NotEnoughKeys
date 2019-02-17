@@ -1,6 +1,9 @@
 package de.morrien.nekeys.voice.command;
 
+import de.morrien.nekeys.api.VoiceCommandFactory;
+import de.morrien.nekeys.api.command.AbstractVoiceCommand;
 import de.morrien.nekeys.gui.voice.GuiVoiceCommand;
+import de.morrien.nekeys.gui.voice.popup.OpenGuiPopup;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -92,6 +95,26 @@ public class OpenGuiVoiceCommand extends AbstractVoiceCommand {
 
         public boolean active() {
             return true;
+        }
+    }
+
+    public static class Factory extends VoiceCommandFactory<OpenGuiVoiceCommand> {
+
+        @Override
+        public OpenGuiVoiceCommand newCommand(String[] params) {
+            OpenGuiVoiceCommand openGuiVoiceCommand = new OpenGuiVoiceCommand();
+            openGuiVoiceCommand.fromConfigParams(params);
+            return openGuiVoiceCommand;
+        }
+
+        @Override
+        public OpenGuiVoiceCommand newCommand(String name, String rule) {
+            return new OpenGuiVoiceCommand(name, rule, AllowedGuis.VOICE_COMMANDS);
+        }
+
+        @Override
+        public OpenGuiPopup newPopup(OpenGuiVoiceCommand command) {
+            return new OpenGuiPopup(command);
         }
     }
 }

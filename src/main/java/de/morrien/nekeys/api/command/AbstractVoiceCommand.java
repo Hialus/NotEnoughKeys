@@ -1,21 +1,27 @@
-package de.morrien.nekeys.voice.command;
+package de.morrien.nekeys.api.command;
 
 import de.morrien.nekeys.NotEnoughKeys;
-import edu.cmu.sphinx.jsgf.parser.JSGFParser;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Created by Timor Morrien
+ * A implementation of {@link IVoiceCommand} that takes care of the name and rule related stuff.
+ *
+ * @author Timor Morrien
  */
 public abstract class AbstractVoiceCommand implements IVoiceCommand {
 
     protected String name;
     protected String command;
 
-    protected AbstractVoiceCommand() {}
+    /**
+     * Empty constructor is currently needed to instanciate VoiceCommands
+     */
+    protected AbstractVoiceCommand() {
+
+    }
 
     public AbstractVoiceCommand(String name, String command) {
         this.name = name;
@@ -60,7 +66,7 @@ public abstract class AbstractVoiceCommand implements IVoiceCommand {
 
     @Override
     public void fromConfigParams(String[] params) {
-        this.name = params.length>=2?params[1]:"";
-        this.command = params.length>=3?params[2]:"";
+        this.name = params.length >= 2 ? params[1] : "";
+        this.command = params.length >= 3 ? params[2] : "";
     }
 }

@@ -3,7 +3,6 @@ package de.morrien.nekeys.command;
 import de.morrien.nekeys.gui.voice.GuiVoiceCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.client.IClientCommand;

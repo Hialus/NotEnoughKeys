@@ -1,5 +1,6 @@
 package de.morrien.nekeys.gui.voice.popup;
 
+import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.DropDownList;
 import de.morrien.nekeys.voice.command.AbstractVoiceKeybind;
 import net.minecraft.client.Minecraft;
@@ -42,18 +43,15 @@ public abstract class AbstractKeybindPopup extends AbstractPopup {
     @Override
     public boolean onClick(int mouseX, int mouseY) {
         super.onClick(mouseX, mouseY);
-        if (keyBindingDropDown.onClick(mouseX, mouseY)) {
-            //if (!keyBindingDropDown.selection.equals("Select a KeyBinding") && (keyBinding == null || !keyBindingDropDown.selection.equals(keyBinding.getDisplayName()))) {
-            //    for (KeyBinding binding : Minecraft.getMinecraft().gameSettings.keyBindings) {
-            //        if (keyBindingDropDown.selection.equals(I18n.format(binding.getKeyDescription()))) {
-            //            keyBinding = binding;
-            //            break;
-            //        }
-            //    }
-            //}
-            return true;
-        }
-        return false;
+        //if (!keyBindingDropDown.selection.equals("Select a KeyBinding") && (keyBinding == null || !keyBindingDropDown.selection.equals(keyBinding.getDisplayName()))) {
+        //    for (KeyBinding binding : Minecraft.getMinecraft().gameSettings.keyBindings) {
+        //        if (keyBindingDropDown.selection.equals(I18n.format(binding.getKeyDescription()))) {
+        //            keyBinding = binding;
+        //            break;
+        //        }
+        //    }
+        //}
+        return keyBindingDropDown.onClick(mouseX, mouseY);
     }
 
     @Override

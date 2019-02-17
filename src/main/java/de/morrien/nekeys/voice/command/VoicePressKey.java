@@ -1,9 +1,10 @@
 package de.morrien.nekeys.voice.command;
 
 import de.morrien.nekeys.NotEnoughKeys;
+import de.morrien.nekeys.api.command.AbstractVoiceCommand;
+import de.morrien.nekeys.api.command.IVoiceCommandTickable;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
@@ -24,7 +25,8 @@ public class VoicePressKey extends AbstractVoiceCommand implements IVoiceCommand
     private int ticksLeft;
     private int keyCode;
 
-    private VoicePressKey() {}
+    private VoicePressKey() {
+    }
 
     public VoicePressKey(String name, String command, int keyCode) {
         super(name, command);

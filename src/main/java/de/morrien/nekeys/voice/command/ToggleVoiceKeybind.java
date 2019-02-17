@@ -1,5 +1,8 @@
 package de.morrien.nekeys.voice.command;
 
+import de.morrien.nekeys.api.VoiceCommandFactory;
+import de.morrien.nekeys.api.popup.AbstractPopup;
+import de.morrien.nekeys.gui.voice.popup.ToggleKeybindPopup;
 import net.minecraft.client.settings.KeyBinding;
 
 /**
@@ -7,7 +10,8 @@ import net.minecraft.client.settings.KeyBinding;
  */
 public class ToggleVoiceKeybind extends AbstractVoiceKeybind {
 
-    private ToggleVoiceKeybind() {}
+    private ToggleVoiceKeybind() {
+    }
 
     public ToggleVoiceKeybind(String name, String command, KeyBinding keybind) {
         super(name, command, keybind);
@@ -17,5 +21,25 @@ public class ToggleVoiceKeybind extends AbstractVoiceKeybind {
     public void activate(String voiceCommand) {
         if (keybind != null)
             KeyBinding.setKeyBindState(keybind.getKeyCode(), !keybind.isKeyDown());
+    }
+
+    public static class Factory extends VoiceCommandFactory<ToggleVoiceKeybind> {
+
+        @Override
+        public ToggleVoiceKeybind newCommand(String[] params) {
+            ToggleVoiceKeybind voiceCommand = new ToggleVoiceKeybind();
+            voiceCommand.fromConfigParams(params);
+            return voiceCommand;
+        }
+
+        @Override
+        public ToggleVoiceKeybind newCommand(String name, String rule) {
+            return new ToggleVoiceKeybind(name, rule, null);
+        }
+
+        @Override
+        public AbstractPopup newPopup(ToggleVoiceKeybind command) {
+            return new ToggleKeybindPopup(command);
+        }
     }
 }

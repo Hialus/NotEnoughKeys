@@ -1,12 +1,10 @@
 package de.morrien.nekeys;
 
+import de.morrien.nekeys.api.NekeysAPI;
 import de.morrien.nekeys.command.CommandOpenVoiceCommandSettings;
-import de.morrien.nekeys.gui.voice.popup.*;
-import de.morrien.nekeys.gui.voice.popup.psi.SelectPsiSlotPopup;
-import de.morrien.nekeys.gui.voice.popup.thaumcraft.SelectFocusPopup;
 import de.morrien.nekeys.preset.PresetManager;
-import de.morrien.nekeys.url.ResourceHandler;
 import de.morrien.nekeys.url.CustomStreamHandlerFactory;
+import de.morrien.nekeys.url.ResourceHandler;
 import de.morrien.nekeys.voice.VoiceHandler;
 import de.morrien.nekeys.voice.command.*;
 import de.morrien.nekeys.voice.command.psi.SelectPsiSlotVoiceCommand;
@@ -16,12 +14,14 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiKeyBindingList;
 import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
@@ -46,6 +46,7 @@ import java.nio.file.Path;
         name = Reference.MODNAME,
         version = Reference.VERSION,
         modid = Reference.MODID,
+        updateJSON = Reference.UPDATE_URL,
         acceptedMinecraftVersions = Reference.MINECRAFT_VERSION,
         clientSideOnly = true
 )
@@ -55,7 +56,9 @@ public class NotEnoughKeys {
     public static NotEnoughKeys instance;
 
     public static Logger logger;
-
+    private static GuiControls currentGui;
+    private static GuiButton[] guiButtons = new GuiButton[10];
+    private static boolean needsInit = true;
     public Path configDirectory;
     public VoiceHandler voiceHandler;
     public PresetManager presetManager;
@@ -101,20 +104,20 @@ public class NotEnoughKeys {
     public void init(FMLInitializationEvent event) {
         Keybindings.register();
 
-        voiceHandler.bindPopup(EmptyVoiceCommand.class, EmptyPopup.class);
-        voiceHandler.bindPopup(SimpleVoiceKeybind.class, SimpleKeybindPopup.class);
-        voiceHandler.bindPopup(ToggleVoiceKeybind.class, ToggleKeybindPopup.class);
+        NekeysAPI.addVoiceCommand(EmptyVoiceCommand.class, new EmptyVoiceCommand.Factory());
+        NekeysAPI.addVoiceCommand(SimpleVoiceKeybind.class, new SimpleVoiceKeybind.Factory());
+        NekeysAPI.addVoiceCommand(ToggleVoiceKeybind.class, new ToggleVoiceKeybind.Factory());
+        NekeysAPI.addVoiceCommand(ChatVoiceCommand.class, new ChatVoiceCommand.Factory());
+        NekeysAPI.addVoiceCommand(OpenGuiVoiceCommand.class, new OpenGuiVoiceCommand.Factory());
+        NekeysAPI.addVoiceCommand(SelectPresetVoiceCommand.class, new SelectPresetVoiceCommand.Factory());
         //voiceHandler.bindPopup(VoicePressKey.class, PressKeyPopup.class);
-        voiceHandler.bindPopup(ChatVoiceCommand.class, ChatPopup.class);
-        voiceHandler.bindPopup(OpenGuiVoiceCommand.class, OpenGuiPopup.class);
-        voiceHandler.bindPopup(SelectPresetVoiceCommand.class, SelectPresetPopup.class);
 
         // Add VoiceCommands for mods
         if (Loader.isModLoaded("psi")) {
-            voiceHandler.bindPopup(SelectPsiSlotVoiceCommand.class, SelectPsiSlotPopup.class);
+            NekeysAPI.addVoiceCommand(SelectPsiSlotVoiceCommand.class, new SelectPsiSlotVoiceCommand.Factory());
         }
         if (Loader.isModLoaded("thaumcraft")) {
-            voiceHandler.bindPopup(SelectFocusVoiceCommand.class, SelectFocusPopup.class);
+            NekeysAPI.addVoiceCommand(SelectFocusVoiceCommand.class, new SelectFocusVoiceCommand.Factory());
         }
     }
 
@@ -133,9 +136,21 @@ public class NotEnoughKeys {
         voiceHandler.tickUpdate();
     }
 
-    private static GuiControls currentGui;
-    private static GuiButton[] guiButtons = new GuiButton[10];
-    private static boolean needsInit = true;
+    @SubscribeEvent
+    public void onRenderGameOverlay(RenderGameOverlayEvent.Post event) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+            if (Keybindings.PUSH_TO_TALK.isKeyDown()) {
+                Minecraft mc = Minecraft.getMinecraft();
+                int posX = event.getResolution().getScaledWidth() - 15;
+                int posY = event.getResolution().getScaledHeight() - 23;
+                ResourceLocation microphone = new ResourceLocation(Reference.MODID, "textures/gui/microphone.png");
+
+                mc.getTextureManager().bindTexture(microphone);
+                GlStateManager.color(1, 1, 1, 0.8f);
+                mc.ingameGUI.drawTexturedModalRect(posX, posY, 0, 0, 10, 18);
+            }
+        }
+    }
 
     @SubscribeEvent
     public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
@@ -159,10 +174,10 @@ public class NotEnoughKeys {
             extenderButton.packedFGColour = 0x55FF55;
             event.getButtonList().add(extenderButton);
             for (int i = 1; i <= 10; i++) {
-                GuiButton button = new GuiButton(1010100 + i, currentGui.width / 2 - 155 + 65 + (i-1)*25, 66, 20, 20, String.valueOf(i));
-                guiButtons[i-1] = button;
+                GuiButton button = new GuiButton(1010100 + i, currentGui.width / 2 - 155 + 65 + (i - 1) * 25, 66, 20, 20, String.valueOf(i));
+                guiButtons[i - 1] = button;
                 button.visible = false;
-                if (presetManager.getPreset(i-1) == presetManager.getCurrentPreset()) {
+                if (presetManager.getPreset(i - 1) == presetManager.getCurrentPreset()) {
                     button.packedFGColour = 0x00FF00;
                 }
                 event.getButtonList().add(button);
@@ -177,7 +192,7 @@ public class NotEnoughKeys {
     public void onGuiDraw(GuiScreenEvent.DrawScreenEvent event) {
         if (event.getGui() instanceof GuiControls) {
             if (guiButtons[0] != null && guiButtons[0].visible)
-                event.getGui().drawString(Minecraft.getMinecraft().fontRenderer, I18n.format("gui.nekeys.presets"), event.getGui().width / 2 - 150,72, 0xFFFFFF);
+                event.getGui().drawString(Minecraft.getMinecraft().fontRenderer, I18n.format("gui.nekeys.presets"), event.getGui().width / 2 - 150, 72, 0xFFFFFF);
         }
     }
 
@@ -190,9 +205,9 @@ public class NotEnoughKeys {
                     guiButton.visible = !guiButton.visible;
                 }
                 boolean enable = "+".equals(event.getButton().displayString);
-                event.getButton().displayString = enable?"-":"+";
+                event.getButton().displayString = enable ? "-" : "+";
                 GuiKeyBindingList keyBindingList = ObfuscationReflectionHelper.getPrivateValue(GuiControls.class, (GuiControls) event.getGui(), "keyBindingList", "t", "field_146494_r");
-                keyBindingList.top += enable?26:-26;
+                keyBindingList.top += enable ? 26 : -26;
             } else if (buttonID >= 1010101 && buttonID <= 1010110) {
                 int presetID = buttonID - 1010101;
                 PresetManager.Preset preset = presetManager.getPreset(presetID);

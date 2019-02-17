@@ -1,7 +1,7 @@
 package de.morrien.nekeys.gui.voice.popup.psi;
 
-import de.morrien.nekeys.gui.voice.popup.AbstractPopup;
-import de.morrien.nekeys.voice.command.IVoiceCommand;
+import de.morrien.nekeys.api.command.IVoiceCommand;
+import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.voice.command.psi.SelectPsiSlotVoiceCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
@@ -27,7 +27,7 @@ public class SelectPsiSlotPopup extends AbstractPopup {
     }
 
     protected void init() {
-        numberTextField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 1000 ,18);
+        numberTextField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 1000, 18);
         numberTextField.setMaxStringLength(1000);
         numberTextField.setValidator(input -> (input != null) && input.matches("\\d*"));
         numberTextField.setText("0");

@@ -1,7 +1,10 @@
 package de.morrien.nekeys.voice.command.psi;
 
 import de.morrien.nekeys.NotEnoughKeys;
-import de.morrien.nekeys.voice.command.AbstractVoiceCommand;
+import de.morrien.nekeys.api.VoiceCommandFactory;
+import de.morrien.nekeys.api.command.AbstractVoiceCommand;
+import de.morrien.nekeys.api.popup.AbstractPopup;
+import de.morrien.nekeys.gui.voice.popup.psi.SelectPsiSlotPopup;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -63,5 +66,25 @@ public class SelectPsiSlotVoiceCommand extends AbstractVoiceCommand {
 
     public void setSlot(int slot) {
         this.slot = slot;
+    }
+
+    public static class Factory extends VoiceCommandFactory<SelectPsiSlotVoiceCommand> {
+
+        @Override
+        public SelectPsiSlotVoiceCommand newCommand(String[] params) {
+            SelectPsiSlotVoiceCommand voiceCommand = new SelectPsiSlotVoiceCommand();
+            voiceCommand.fromConfigParams(params);
+            return voiceCommand;
+        }
+
+        @Override
+        public SelectPsiSlotVoiceCommand newCommand(String name, String rule) {
+            return new SelectPsiSlotVoiceCommand(name, rule, 0);
+        }
+
+        @Override
+        public AbstractPopup newPopup(SelectPsiSlotVoiceCommand command) {
+            return new SelectPsiSlotPopup(command);
+        }
     }
 }

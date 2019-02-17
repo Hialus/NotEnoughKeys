@@ -16,23 +16,20 @@ import edu.cmu.sphinx.util.props.PropertyException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
-import java.util.Set;
 
 import static de.morrien.nekeys.NotEnoughKeys.logger;
 
 public class SpeechRecognizer implements Runnable {
 
+    boolean recording = false;
+    private Microphone microphone;
     private ConfigurationManager cm;
     private Recognizer recognizer;
-    Microphone microphone;
     private TextDictionary dictionary;
     private JSGFGrammar grammar;
     private JSGFRuleGrammar ruleGrammar;
-
     private volatile Thread recognitionThread = null;
     private boolean recognitionThreadEnabled = false;
-    boolean recording = false;
-
     // A queue of the recognized strings.
     private LinkedList<String> recognizedStringQueue;
 
@@ -75,6 +72,7 @@ public class SpeechRecognizer implements Runnable {
                 rule = JSGFParser.ruleForJSGF("");
                 logger.warn("Could not bind malformed rule \"" + ruleContent + "\"");
             }
+            rule.ruleName = ruleName;
             ruleGrammar.setRule(ruleName, rule, true);
             ruleGrammar.setEnabled(true);
             grammar.commitChanges();
@@ -94,7 +92,7 @@ public class SpeechRecognizer implements Runnable {
         boolean enabled = isEnabled();
         if (enabled) setEnabled(false);
 
-        Set<String> ruleNames = ruleGrammar.getRuleNames();
+        String[] ruleNames = ruleGrammar.getRuleNames().toArray(new String[0]);
         for (String ruleName : ruleNames) {
             ruleGrammar.deleteRule(ruleName);
         }
@@ -165,6 +163,13 @@ public class SpeechRecognizer implements Runnable {
         }
     }
 
+    /**
+     * @return true if the microphone is currently enabled.
+     */
+    public boolean isEnabled() {
+        return microphone.isRecording();
+    }
+
     // Enables and disables the speech recognizer.  Starts and stops the
     // speech recognition thread.
     public void setEnabled(boolean enabled) {
@@ -206,7 +211,7 @@ public class SpeechRecognizer implements Runnable {
 
                 try {
                     // Have the main thread sleep for a bit...
-                    Thread.sleep(100);
+                    Thread.sleep(10);
                 } catch (InterruptedException exception) {
                 }
             }
@@ -218,13 +223,6 @@ public class SpeechRecognizer implements Runnable {
             logger.debug("Clearing recognized string queue");
             recognizedStringQueue.clear();
         }
-    }
-
-    /**
-     * @return true if the microphone is currently enabled.
-     */
-    public boolean isEnabled() {
-        return microphone.isRecording();
     }
 
     /**

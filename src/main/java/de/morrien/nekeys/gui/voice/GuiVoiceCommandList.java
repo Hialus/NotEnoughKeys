@@ -2,8 +2,8 @@ package de.morrien.nekeys.gui.voice;
 
 import de.morrien.nekeys.NotEnoughKeys;
 import de.morrien.nekeys.Reference;
+import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.gui.BetterButton;
-import de.morrien.nekeys.voice.command.IVoiceCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by Timor Morrien
@@ -34,9 +32,9 @@ public class GuiVoiceCommandList extends GuiListExtended {
 
     private final GuiVoiceCommand gui;
     private final Minecraft mc;
+    public IAction activeAction;
     List<CommandEntry> listEntries;
     private GuiTextField activeTextField;
-    public IAction activeAction;
 
     public GuiVoiceCommandList(GuiVoiceCommand gui, Minecraft mcIn) {
         super(mcIn, gui.width, gui.height, 35, gui.height - 62, 25);
@@ -172,15 +170,15 @@ public class GuiVoiceCommandList extends GuiListExtended {
      */
     @SideOnly(Side.CLIENT)
     public class CommandEntry implements GuiListExtended.IGuiListEntry {
-        private IVoiceCommand command;
         private final GuiButton btnChangeKeyBinding;
         private final GuiButton btnDelete;
         private final GuiButton btnEdit;
         private final BetterButton upButton;
-        BetterButton downButton;
         private final GuiTextField nameTextField;
         private final GuiTextField ruleTextField;
         private final ResourceLocation settingsIcon = new ResourceLocation(Reference.MODID, "textures/gui/settings.png");
+        BetterButton downButton;
+        private IVoiceCommand command;
 
         private CommandEntry(IVoiceCommand command) {
             this.command = command;

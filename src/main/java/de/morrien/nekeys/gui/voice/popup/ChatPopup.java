@@ -1,7 +1,8 @@
 package de.morrien.nekeys.gui.voice.popup;
 
+import de.morrien.nekeys.api.command.IVoiceCommand;
+import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.voice.command.ChatVoiceCommand;
-import de.morrien.nekeys.voice.command.IVoiceCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
@@ -26,7 +27,7 @@ public class ChatPopup extends AbstractPopup {
     }
 
     protected void init() {
-        chatMessageTextField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 1000 ,18);
+        chatMessageTextField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 1000, 18);
         chatMessageTextField.setMaxStringLength(256);
     }
 

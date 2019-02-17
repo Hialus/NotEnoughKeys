@@ -2,9 +2,9 @@ package de.morrien.nekeys.gui.voice.popup.thaumcraft;
 
 import baubles.api.BaublesApi;
 import baubles.api.cap.IBaublesItemHandler;
+import de.morrien.nekeys.api.command.IVoiceCommand;
+import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.DropDownList;
-import de.morrien.nekeys.gui.voice.popup.AbstractPopup;
-import de.morrien.nekeys.voice.command.IVoiceCommand;
 import de.morrien.nekeys.voice.command.thaumcraft.SelectFocusVoiceCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -53,7 +53,7 @@ public class SelectFocusPopup extends AbstractPopup {
             GL11.glPushMatrix();
             {
                 GlStateManager.enableLighting();
-                Minecraft.getMinecraft().getRenderItem().renderItemAndEffectIntoGUI(itemStack, x, y-1);
+                Minecraft.getMinecraft().getRenderItem().renderItemAndEffectIntoGUI(itemStack, x, y - 1);
                 GlStateManager.disableLighting();
             }
             GL11.glPopMatrix();
@@ -65,15 +65,15 @@ public class SelectFocusPopup extends AbstractPopup {
             }
             drawString(Minecraft.getMinecraft().fontRenderer, label, x + 16, y + 3, color);
         };
-        if (Minecraft.getMinecraft().player==null) {
+        if (Minecraft.getMinecraft().player == null) {
             fociDropDown.disabled = true;
         }
     }
 
     @Override
     public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(Minecraft.getMinecraft().fontRenderer, I18n.format("gui.nekey.popup.thaumcraft.selectFocus"), x + 6, y + 4, fociDropDown.disabled?0xA0A0A0:0xFFFFFFFF);
-        Minecraft.getMinecraft().fontRenderer.drawSplitString(I18n.format("gui.nekey.popup.thaumcraft.unavailable"), x + 10, y + 40, width - 20,0xFFFFFFFF);
+        drawString(Minecraft.getMinecraft().fontRenderer, I18n.format("gui.nekey.popup.thaumcraft.selectFocus"), x + 6, y + 4, fociDropDown.disabled ? 0xA0A0A0 : 0xFFFFFFFF);
+        Minecraft.getMinecraft().fontRenderer.drawSplitString(I18n.format("gui.nekey.popup.thaumcraft.unavailable"), x + 10, y + 40, width - 20, 0xFFFFFFFF);
 
         fociDropDown.x = x + 6;
         fociDropDown.y = y + 16;
@@ -95,7 +95,7 @@ public class SelectFocusPopup extends AbstractPopup {
 
     @Override
     public IVoiceCommand getCommand() {
-        return new SelectFocusVoiceCommand(name, rule, fociDropDown.selection == null?"REMOVE":getFociHash(fociDropDown.selection));
+        return new SelectFocusVoiceCommand(name, rule, fociDropDown.selection == null ? "REMOVE" : getFociHash(fociDropDown.selection));
     }
 
     protected List<ItemStack> getFocis() {
@@ -105,17 +105,17 @@ public class SelectFocusPopup extends AbstractPopup {
         Minecraft mc = Minecraft.getMinecraft();
         IBaublesItemHandler baubles = BaublesApi.getBaublesHandler(mc.player);
 
-        for(int i = 0; i < baubles.getSlots(); ++i) {
+        for (int i = 0; i < baubles.getSlots(); ++i) {
             if (!baubles.getStackInSlot(i).isEmpty() && baubles.getStackInSlot(i).getItem() instanceof ItemFocusPouch) {
                 item = baubles.getStackInSlot(i);
-                scanInventory(fociList, ((ItemFocusPouch)item.getItem()).getInventory(item));
+                scanInventory(fociList, ((ItemFocusPouch) item.getItem()).getInventory(item));
             }
         }
 
-        for(int i = 0; i < 36; ++i) {
+        for (int i = 0; i < 36; ++i) {
             item = mc.player.inventory.mainInventory.get(i);
             if (item.getItem() instanceof ItemFocus) {
-                String sh = ((ItemFocus)item.getItem()).getSortingHelper(item);
+                String sh = ((ItemFocus) item.getItem()).getSortingHelper(item);
                 if (sh == null) {
                     continue;
                 }
@@ -123,7 +123,7 @@ public class SelectFocusPopup extends AbstractPopup {
             }
 
             if (item.getItem() instanceof ItemFocusPouch) {
-                scanInventory(fociList, ((ItemFocusPouch)item.getItem()).getInventory(item));
+                scanInventory(fociList, ((ItemFocusPouch) item.getItem()).getInventory(item));
             }
             //noinspection Duplicates
             if (item.getItem() instanceof ICaster) {
@@ -148,10 +148,10 @@ public class SelectFocusPopup extends AbstractPopup {
 
     protected void scanInventory(List<ItemStack> fociList, NonNullList inv) {
         ItemStack item;
-        for(int i = 0; i < inv.size(); ++i) {
-            item = (ItemStack)inv.get(i);
+        for (int i = 0; i < inv.size(); ++i) {
+            item = (ItemStack) inv.get(i);
             if (item.getItem() instanceof ItemFocus) {
-                String hash = ((ItemFocus)item.getItem()).getSortingHelper(item);
+                String hash = ((ItemFocus) item.getItem()).getSortingHelper(item);
                 if (hash != null) {
                     fociList.add(item);
                 }
@@ -160,6 +160,6 @@ public class SelectFocusPopup extends AbstractPopup {
     }
 
     protected String getFociHash(ItemStack stack) {
-        return ((ItemFocus)stack.getItem()).getSortingHelper(stack);
+        return ((ItemFocus) stack.getItem()).getSortingHelper(stack);
     }
 }

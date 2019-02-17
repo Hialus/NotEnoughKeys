@@ -40,10 +40,10 @@ public class DropDownList<E> extends Gui {
     }
 
     public void draw() {
-        drawRect(x, y, x + width, y + height, disabled?0xFFAAAAAA:0xFFFFFFFF);
-        drawRect(x+1, y+1, x + width - 1, y + height - 1, 0xFF000000);
+        drawRect(x, y, x + width, y + height, disabled ? 0xFFAAAAAA : 0xFFFFFFFF);
+        drawRect(x + 1, y + 1, x + width - 1, y + height - 1, 0xFF000000);
         if (cellRenderer != null && selection != null) {
-            cellRenderer.render(selection, x + 1, y+2, width - 3, this);
+            cellRenderer.render(selection, x + 1, y + 2, width - 3, this);
         } else {
             drawString(Minecraft.getMinecraft().fontRenderer, selection == null ? "None" : stringifier.toString(selection), x + 5, y + 5, 0xFFFFFF);
         }
@@ -51,26 +51,26 @@ public class DropDownList<E> extends Gui {
         drawRect(x + width - buttonHeight - 1, y + 1, x + width - 1, y + 1 + buttonHeight, 0xFF565656);
         drawRect(x + width - buttonHeight, y + 2, x + width - 2, y + buttonHeight, 0xFF787878);
         GL11.glPushMatrix();
-            GL11.glTranslated(x + width - buttonHeight + 1, y - 3, 0);
-            GL11.glScaled(3.6, 3, 1);
-            if (expanded) {
-                drawString(Minecraft.getMinecraft().fontRenderer, "\u25B2", 0, 0, disabled?0xA0A0A0:0xFFFFFF);
-            } else {
-                drawString(Minecraft.getMinecraft().fontRenderer, "\u25BC", 0, 0, disabled?0xA0A0A0:0xFFFFFF);
-            }
+        GL11.glTranslated(x + width - buttonHeight + 1, y - 3, 0);
+        GL11.glScaled(3.6, 3, 1);
+        if (expanded) {
+            drawString(Minecraft.getMinecraft().fontRenderer, "\u25B2", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
+        } else {
+            drawString(Minecraft.getMinecraft().fontRenderer, "\u25BC", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
+        }
         GL11.glPopMatrix();
 
         if (this.expanded) {
-            drawRect(x, y + height, x + width, y + height + expandHeight*cellHeight, 0xFFFFFFFF);
-            drawRect(x + 1, y + height, x + width - 1, y + height + expandHeight*cellHeight - 1, 0xFF000000);
+            drawRect(x, y + height, x + width, y + height + expandHeight * cellHeight, 0xFFFFFFFF);
+            drawRect(x + 1, y + height, x + width - 1, y + height + expandHeight * cellHeight - 1, 0xFF000000);
             int offset = 0;
             for (int i = scrollPosition; i < Math.min(optionsList.size(), scrollPosition + expandHeight); i++) {
                 if (cellRenderer != null) {
-                    cellRenderer.render(optionsList.get(i), x + 1, y + height + offset * cellHeight, width-3, this);
+                    cellRenderer.render(optionsList.get(i), x + 1, y + height + offset * cellHeight, width - 3, this);
                 } else {
                     drawString(Minecraft.getMinecraft().fontRenderer, stringifier.toString(optionsList.get(i)), x + 5, y + height + offset * cellHeight + 2, 0xFFFFFF);
                 }
-                drawHorizontalLine(x, x + width - 1, y + height + offset * cellHeight + cellHeight-1, 0xFFFFFFFF);
+                drawHorizontalLine(x, x + width - 1, y + height + offset * cellHeight + cellHeight - 1, 0xFFFFFFFF);
                 offset++;
             }
         }
@@ -91,8 +91,8 @@ public class DropDownList<E> extends Gui {
             for (int i = scrollPosition; i < Math.min(optionsList.size(), scrollPosition + expandHeight); i++) {
                 if (mouseX >= x &&
                         mouseX <= x + width &&
-                        mouseY >= y + height + (offset-1)*cellHeight + cellHeight &&
-                        mouseY <= y + height + offset*cellHeight + cellHeight-1) {
+                        mouseY >= y + height + (offset - 1) * cellHeight + cellHeight &&
+                        mouseY <= y + height + offset * cellHeight + cellHeight - 1) {
                     selection = optionsList.get(i);
                     expanded = false;
                     return true;

@@ -3,7 +3,6 @@ package de.morrien.nekeys.preset;
 import de.morrien.nekeys.NotEnoughKeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.settings.KeyModifier;
 
@@ -49,8 +48,8 @@ public class PresetManager {
     public void saveToConfig() throws IOException {
         List<String> lines = new ArrayList<>();
         for (int i = 1; i <= presets.size(); i++) {
-            Preset preset = presets.get(i-1);
-            lines.add(preset == currentPreset?String.valueOf(i + " active"):String.valueOf(i));
+            Preset preset = presets.get(i - 1);
+            lines.add(preset == currentPreset ? i + " active" : String.valueOf(i));
             for (KeyBindingInformation keyBindingInformation : preset.keyBindingInformations) {
                 lines.add("- " + keyBindingInformation.keyBindingId + "   " + keyBindingInformation.keyCode + "   " + keyBindingInformation.keyModifier.name());
             }
@@ -102,6 +101,37 @@ public class PresetManager {
         }
     }
 
+    public static class KeyBindingInformation {
+        public String keyBindingId;
+        public int keyCode;
+        public KeyModifier keyModifier;
+
+        public KeyBindingInformation(KeyBinding keyBinding) {
+            this.keyBindingId = keyBinding.getKeyDescription();
+            this.keyCode = keyBinding.getKeyCode();
+            this.keyModifier = keyBinding.getKeyModifier();
+        }
+
+        public KeyBindingInformation(String keyBindingId, int keyCode, KeyModifier keyModifier) {
+            this.keyBindingId = keyBindingId;
+            this.keyCode = keyCode;
+            this.keyModifier = keyModifier;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            KeyBindingInformation that = (KeyBindingInformation) o;
+
+            if (keyCode != that.keyCode) return false;
+            if (keyBindingId != null ? !keyBindingId.equals(that.keyBindingId) : that.keyBindingId != null)
+                return false;
+            return keyModifier == that.keyModifier;
+        }
+    }
+
     public class Preset implements Cloneable {
         private List<KeyBindingInformation> keyBindingInformations;
 
@@ -119,7 +149,7 @@ public class PresetManager {
         public void load() {
             if (this == currentPreset) {
                 if (Minecraft.getMinecraft().player != null) {
-                    Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentTranslation("nekeys.status.preset.alreadyLoaded", presets.indexOf(this)+1), true);
+                    Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentTranslation("nekeys.status.preset.alreadyLoaded", presets.indexOf(this) + 1), true);
                 }
                 return;
             }
@@ -136,7 +166,7 @@ public class PresetManager {
             KeyBinding.resetKeyBindingArrayAndHash();
             currentPreset = this;
             if (Minecraft.getMinecraft().player != null) {
-                Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentTranslation("nekeys.status.preset.change", presets.indexOf(this)+1), true);
+                Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentTranslation("nekeys.status.preset.change", presets.indexOf(this) + 1), true);
             }
         }
 
@@ -194,37 +224,6 @@ public class PresetManager {
                 kbis.add(new KeyBindingInformation(kbi.keyBindingId, kbi.keyCode, kbi.keyModifier));
             }
             return new Preset(kbis);
-        }
-    }
-
-    public static class KeyBindingInformation {
-        public String keyBindingId;
-        public int keyCode;
-        public KeyModifier keyModifier;
-
-        public KeyBindingInformation(KeyBinding keyBinding) {
-            this.keyBindingId = keyBinding.getKeyDescription();
-            this.keyCode = keyBinding.getKeyCode();
-            this.keyModifier = keyBinding.getKeyModifier();
-        }
-
-        public KeyBindingInformation(String keyBindingId, int keyCode, KeyModifier keyModifier) {
-            this.keyBindingId = keyBindingId;
-            this.keyCode = keyCode;
-            this.keyModifier = keyModifier;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            KeyBindingInformation that = (KeyBindingInformation) o;
-
-            if (keyCode != that.keyCode) return false;
-            if (keyBindingId != null ? !keyBindingId.equals(that.keyBindingId) : that.keyBindingId != null)
-                return false;
-            return keyModifier == that.keyModifier;
         }
     }
 }

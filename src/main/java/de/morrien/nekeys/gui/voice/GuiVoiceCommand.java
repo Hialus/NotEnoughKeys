@@ -1,13 +1,13 @@
 package de.morrien.nekeys.gui.voice;
 
 import de.morrien.nekeys.NotEnoughKeys;
+import de.morrien.nekeys.api.command.IVoiceCommand;
+import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.DropDownList;
-import de.morrien.nekeys.gui.voice.popup.AbstractPopup;
 import de.morrien.nekeys.voice.command.EmptyVoiceCommand;
-import de.morrien.nekeys.voice.command.IVoiceCommand;
-import de.morrien.nekeys.voice.command.SimpleVoiceKeybind;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -19,10 +19,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.awt.*;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.List;
 
 /**
  * Created by Timor Morrien
@@ -30,7 +26,9 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public class GuiVoiceCommand extends GuiScreen {
 
-    /** A reference to the screen object that created this. Used for navigating between screens. */
+    /**
+     * A reference to the screen object that created this. Used for navigating between screens.
+     */
     private final GuiScreen parentScreen;
     protected String screenTitle = "Voice Commands";
     private GuiVoiceCommandList voiceCommandList;
@@ -99,21 +97,10 @@ public class GuiVoiceCommand extends GuiScreen {
         } else if (button.id == 103) {
             voiceCommandList.activeAction = commandEntry -> {
                 int index = voiceCommandList.listEntries.indexOf(commandEntry);
-
-                List<String> params = commandEntry.getCommand().getConfigParams();
-                params.add(0, commandEntry.getCommand().getClass().getName());
-                StringBuilder builder = new StringBuilder();
-                for (String param : params) {
-                    builder.append(param).append(":");
-                }
-                builder.replace(builder.length()-1, builder.length(), "");
-
-                IVoiceCommand command = NotEnoughKeys.instance.voiceHandler.parseLineToVoiceCommand(builder.toString());
-                if (command != null) {
-                    GuiVoiceCommandList.CommandEntry entry = voiceCommandList.newEntry(command);
-                    voiceCommandList.listEntries.add(index, entry);
-                    voiceCommandList.activeAction = null;
-                }
+                IVoiceCommand command = NotEnoughKeys.instance.voiceHandler.factoryMap.newVoiceCommand(commandEntry.getCommand());
+                GuiVoiceCommandList.CommandEntry entry = voiceCommandList.newEntry(command);
+                voiceCommandList.listEntries.add(index, entry);
+                voiceCommandList.activeAction = null;
                 return true;
             };
         }
@@ -202,41 +189,37 @@ public class GuiVoiceCommand extends GuiScreen {
 
         private GuiVoiceCommandList.CommandEntry commandEntry;
         private AbstractPopup voiceCommandPopup;
-        private Map<String, Class<? extends IVoiceCommand>> nameMap;
-        private DropDownList<String> dropDownList;
-        private String lastSelection;
+        //private Map<String, Class<? extends IVoiceCommand>> nameMap;
+        private DropDownList<Class<? extends IVoiceCommand>> dropDownList;
+        private Class<? extends IVoiceCommand> lastSelection;
         private GuiButton saveButton;
 
         public GuiVoiceCommandSettings(GuiVoiceCommandList.CommandEntry entry) {
             this.commandEntry = entry;
-            this.nameMap = new HashMap<>();
-            this.dropDownList = new DropDownList<>(0, 0, 0 , 18, 6);
-            NotEnoughKeys.instance.voiceHandler.popupBindingMap.forEach((voiceCommandClass, popupClass) -> {
-                String name = I18n.format("voiceCommand." + voiceCommandClass.getSimpleName() + ".name");
-                nameMap.put(name, voiceCommandClass);
-                dropDownList.optionsList.add(name);
+            //this.nameMap = new HashMap<>();
+            this.dropDownList = new DropDownList<>(0, 0, 0, 18, 6);
+            this.dropDownList.stringifier = clazz -> I18n.format("voiceCommand." + clazz.getSimpleName() + ".name");
+            NotEnoughKeys.instance.voiceHandler.factoryMap.forEach((voiceCommandClass, factory) -> {
+                //String name = I18n.format("voiceCommand." + voiceCommandClass.getSimpleName() + ".name");
+                //nameMap.put(name, voiceCommandClass);
+                dropDownList.optionsList.add(voiceCommandClass);
                 if (voiceCommandClass.equals(commandEntry.getCommand().getClass())) {
-                    dropDownList.selection = name;
-                    try {
-                        Constructor<? extends AbstractPopup> constructor = NotEnoughKeys.instance.voiceHandler.popupBindingMap.get(nameMap.get(dropDownList.selection)).getDeclaredConstructor(voiceCommandClass);
-                        voiceCommandPopup = constructor.newInstance(commandEntry.getCommand());
-                        lastSelection = dropDownList.selection;
-                    } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    dropDownList.selection = voiceCommandClass;
+                    voiceCommandPopup = NotEnoughKeys.instance.voiceHandler.factoryMap.newPopup(commandEntry.getCommand());
+                    lastSelection = dropDownList.selection;
                 }
             });
-            Collections.sort(dropDownList.optionsList);
-            this.saveButton = new GuiButton(0, width/2 + 100 - 45, height/2 + 60 - 23, 40, 20, "Save");
+            dropDownList.optionsList.sort((o1, o2) -> dropDownList.stringifier.toString(o1).compareToIgnoreCase(dropDownList.stringifier.toString(o2)));
+            this.saveButton = new GuiButton(0, width / 2 + 100 - 45, height / 2 + 60 - 23, 40, 20, "Save");
         }
 
         public void draw(int mouseX, int mouseY, float partialTicks) {
             drawRect(0, 0, width, height, 0x77000000);
-            drawRect(width/2 - 101, height/2 - 61, width/2 + 102, height/2 + 61, 0xFFFFFFFF);
+            drawRect(width / 2 - 101, height / 2 - 61, width / 2 + 102, height / 2 + 61, 0xFFFFFFFF);
             //drawRect(width/2 - 100, height/2 - 60, width/2 + 100, height/2 + 60, 0xFF000000);
 
-            double dialogX = width/2D - 100;
-            double dialogY = height/2D - 60;
+            double dialogX = width / 2D - 100;
+            double dialogY = height / 2D - 60;
             double dialogWidth = 200;
             double dialogHeight = 120;
 
@@ -251,18 +234,14 @@ public class GuiVoiceCommand extends GuiScreen {
             bufferbuilder.pos(dialogX, dialogY, 0).tex(0, 0).color(150, 150, 150, 255).endVertex();
             tessellator.draw();
 
-            this.saveButton.x = width/2 + 100 - 45;
-            this.saveButton.y = height/2 + 60 - 23;
+            //this.saveButton.x = width / 2 + 100 - 45;
+            //this.saveButton.y = height / 2 + 60 - 23;
             saveButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
 
             if (lastSelection != dropDownList.selection) {
-                try {
-                    Constructor<? extends AbstractPopup> constructor = NotEnoughKeys.instance.voiceHandler.popupBindingMap.get(nameMap.get(dropDownList.selection)).getDeclaredConstructor(String.class, String.class);
-                    voiceCommandPopup = constructor.newInstance(commandEntry.getCommand().getName(), commandEntry.getCommand().getRuleContent());
-                    lastSelection = dropDownList.selection;
-                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
+                commandEntry.setCommand(NotEnoughKeys.instance.voiceHandler.factoryMap.get(dropDownList.selection).newCommand(commandEntry.getCommand().getName(), commandEntry.getCommand().getRuleContent()));
+                voiceCommandPopup = NotEnoughKeys.instance.voiceHandler.factoryMap.newPopup(commandEntry.getCommand());
+                lastSelection = dropDownList.selection;
             }
 
             voiceCommandPopup.draw((int) dialogX, (int) dialogY + 22, (int) dialogWidth, (int) dialogHeight - 22, mouseX, mouseY, partialTicks);
@@ -274,10 +253,10 @@ public class GuiVoiceCommand extends GuiScreen {
         }
 
         public void onClick(int mouseX, int mouseY) {
-            if (mouseX <= width/2 - 102 ||
-                    mouseX >= width/2 + 102 ||
-                    mouseY <= height/2 - 62 ||
-                    mouseY >= height/2 + 62) {
+            if (mouseX <= width / 2 - 102 ||
+                    mouseX >= width / 2 + 102 ||
+                    mouseY <= height / 2 - 62 ||
+                    mouseY >= height / 2 + 62) {
                 activeSettings = null;
                 return;
             }

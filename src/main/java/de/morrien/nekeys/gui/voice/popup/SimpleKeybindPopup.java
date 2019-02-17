@@ -1,6 +1,6 @@
 package de.morrien.nekeys.gui.voice.popup;
 
-import de.morrien.nekeys.voice.command.IVoiceCommand;
+import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.voice.command.SimpleVoiceKeybind;
 
 /**

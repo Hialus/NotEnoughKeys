@@ -2,19 +2,16 @@ package de.morrien.nekeys.voice;
 
 import de.morrien.nekeys.Keybindings;
 import de.morrien.nekeys.NotEnoughKeys;
-import de.morrien.nekeys.gui.voice.popup.AbstractPopup;
-import de.morrien.nekeys.voice.command.IVoiceCommand;
-import de.morrien.nekeys.voice.command.IVoiceCommandTickable;
+import de.morrien.nekeys.api.VoiceCommandFactory;
+import de.morrien.nekeys.api.command.IVoiceCommand;
+import de.morrien.nekeys.api.command.IVoiceCommandTickable;
 import de.morrien.nekeys.voice.command.OpenGuiVoiceCommand;
 import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static de.morrien.nekeys.NotEnoughKeys.logger;
@@ -24,14 +21,15 @@ import static de.morrien.nekeys.NotEnoughKeys.logger;
  */
 public class VoiceHandler {
 
+    public FactoryMap factoryMap;
+    public int tickBuffer;
     private SpeechRecognizer recognizer;
-    public HashMap<Class<? extends IVoiceCommand>, Class<? extends AbstractPopup>> popupBindingMap;
     private List<IVoiceCommand> voiceCommands;
     private Path configFile;
 
     public VoiceHandler() {
         voiceCommands = new ArrayList<>();
-        popupBindingMap = new HashMap<>();
+        factoryMap = new FactoryMap();
         configFile = NotEnoughKeys.instance.configDirectory.resolve("voice.config");
     }
 
@@ -44,11 +42,9 @@ public class VoiceHandler {
         recognizer.setEnabled(true);
     }
 
-    private int tickBuffer;
-
     public void tickUpdate() {
         if (Keyboard.isKeyDown(Keybindings.PUSH_TO_TALK.getKeyCode())) {
-            if (!recognizer.recording){
+            if (!recognizer.recording) {
                 recognizer.recording = true;
                 tickBuffer = 20;
             }
@@ -63,12 +59,12 @@ public class VoiceHandler {
         }
 
         // Let the IVoiceCommandTickables tick
-        voiceCommands.stream().filter(iVoiceCommand -> iVoiceCommand instanceof IVoiceCommandTickable).forEach(iVoiceCommand -> ((IVoiceCommandTickable)iVoiceCommand).tick());
+        voiceCommands.stream().filter(iVoiceCommand -> iVoiceCommand instanceof IVoiceCommandTickable).forEach(iVoiceCommand -> ((IVoiceCommandTickable) iVoiceCommand).tick());
         // Check if the user gave any command(s)
         while (recognizer.getQueueSize() > 0) {
             String command = recognizer.popString();
             command = command.toLowerCase();
-            logger.debug("Command recognized: " + command);
+            logger.info("Command recognized: " + command);
             for (IVoiceCommand voiceKeybind : voiceCommands) {
                 if (voiceKeybind.isValidCommand(command)) {
                     voiceKeybind.activate(command);
@@ -78,8 +74,8 @@ public class VoiceHandler {
         }
     }
 
-    public void bindPopup(Class<? extends IVoiceCommand> voiceCommandClass, Class<? extends AbstractPopup> popupClass) {
-        popupBindingMap.put(voiceCommandClass, popupClass);
+    public <T extends IVoiceCommand> void bind(Class<T> command, VoiceCommandFactory<T> factory) {
+        factoryMap.put(command, factory);
     }
 
     public void reloadConfig() {
@@ -97,7 +93,7 @@ public class VoiceHandler {
             }
         } else {
             voiceCommands = new ArrayList<>();
-            voiceCommands.add(new OpenGuiVoiceCommand("voice", "(open voice settings)|(open voice)|(open speech settings)", OpenGuiVoiceCommand.AllowedGuis.VOICE_COMMANDS));
+            voiceCommands.add(new OpenGuiVoiceCommand("voice", "[open] ((voice settings)|(voice)|(speech settings))", OpenGuiVoiceCommand.AllowedGuis.VOICE_COMMANDS));
             saveConfig();
         }
     }
@@ -111,7 +107,7 @@ public class VoiceHandler {
             for (String param : params) {
                 builder.append(param).append(":");
             }
-            builder.replace(builder.length()-1, builder.length(), "");
+            builder.replace(builder.length() - 1, builder.length(), "");
             configLines.add(builder.toString());
         }
         try {
@@ -125,23 +121,13 @@ public class VoiceHandler {
     public IVoiceCommand parseLineToVoiceCommand(String line) {
         String[] splitLine = line.split(":");
         if (splitLine.length == 0) return null;
-        try {
-            Class<?> clazz = Class.forName(splitLine[0]);
-            Constructor constructor = clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            Object object = constructor.newInstance();
-            if (object instanceof IVoiceCommand) {
-                IVoiceCommand command = (IVoiceCommand) object;
-                command.fromConfigParams(line.split(":"));
-                return command;
-            } else {
-                logger.warn("Line does not correspond to a IVoiceCommand " + line);
+        final IVoiceCommand[] command = new IVoiceCommand[1];
+        factoryMap.forEach(((clazz, factory) -> {
+            if (clazz.getName().equals(splitLine[0])) {
+                command[0] = factory.newCommand(splitLine);
             }
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            logger.warn("Unable to read line " + line);
-            logger.warn(e.toString());
-        }
-        return null;
+        }));
+        return command[0];
     }
 
     public void updateGrammar() {

@@ -1,10 +1,12 @@
-package de.morrien.nekeys.gui.voice.popup;
+package de.morrien.nekeys.api.popup;
 
-import de.morrien.nekeys.voice.command.IVoiceCommand;
+import de.morrien.nekeys.api.command.IVoiceCommand;
 import net.minecraft.client.gui.Gui;
 
 /**
- * Created by Timor Morrien
+ * Represents a popup for a VoiceCommand. This popup will be presented to user to change the settings of the command
+ *
+ * @author Timor Morrien
  */
 public abstract class AbstractPopup extends Gui {
 
@@ -27,9 +29,11 @@ public abstract class AbstractPopup extends Gui {
         return false;
     }
 
-    public void keyTyped(char typedChar, int keyCode) {}
+    public void keyTyped(char typedChar, int keyCode) {
+    }
 
-    public void handleMouseInput() {}
+    public void handleMouseInput() {
+    }
 
     public String getName() {
         return name;

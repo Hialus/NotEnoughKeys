@@ -1,7 +1,8 @@
 package de.morrien.nekeys.gui.voice.popup;
 
+import de.morrien.nekeys.api.command.IVoiceCommand;
+import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.DropDownList;
-import de.morrien.nekeys.voice.command.IVoiceCommand;
 import de.morrien.nekeys.voice.command.SelectPresetVoiceCommand;
 
 /**
@@ -22,7 +23,7 @@ public class SelectPresetPopup extends AbstractPopup {
     }
 
     protected void init() {
-        guiDropDown = new DropDownList<>(0, 0, 0 ,18, 6);
+        guiDropDown = new DropDownList<>(0, 0, 0, 18, 6);
         for (int i = 1; i <= 10; i++) {
             guiDropDown.optionsList.add(i);
         }

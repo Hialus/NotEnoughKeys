@@ -21,6 +21,7 @@ minecraft {
     version = project.forgeVersion
     runDir = "run"
     mappings = project.mcpVersion
+    replace '@VERSION@', project.version
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 

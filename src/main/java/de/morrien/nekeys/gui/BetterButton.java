@@ -34,10 +34,10 @@ public class BetterButton extends GuiButton {
             GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
             this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height / 2);
-            this.drawTexturedModalRect(this.x, this.y + this.height/2, 0, 46 + i * 20 + (20 - this.height/2), this.width / 2, this.height/2);
+            this.drawTexturedModalRect(this.x, this.y + this.height / 2, 0, 46 + i * 20 + (20 - this.height / 2), this.width / 2, this.height / 2);
 
-            this.drawTexturedModalRect(this.x + this.width/2, this.y, 200 - this.width/2, 46 + i * 20, this.width/2, this.height/2);
-            this.drawTexturedModalRect(this.x + this.width/2, this.y + this.height/2, 200 - this.width/2, 46 + i * 20 + (20 - this.height/2), this.width / 2, this.height/2);
+            this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height / 2);
+            this.drawTexturedModalRect(this.x + this.width / 2, this.y + this.height / 2, 200 - this.width / 2, 46 + i * 20 + (20 - this.height / 2), this.width / 2, this.height / 2);
 
             this.mouseDragged(mc, mouseX, mouseY);
             int textColor = 0xE0E0E0;
@@ -52,7 +52,7 @@ public class BetterButton extends GuiButton {
 
             GL11.glPushMatrix();
             {
-                GL11.glTranslated((this.x + this.width / 2D) - fontrenderer.getStringWidth(displayString)*fontScale / 2D, this.y + (this.height - 8D)/fontScale /2D, 0);
+                GL11.glTranslated((this.x + this.width / 2D) - fontrenderer.getStringWidth(displayString) * fontScale / 2D, this.y + (this.height - 8D) / fontScale / 2D, 0);
                 GL11.glScaled(fontScale, fontScale, 0);
                 fontrenderer.drawStringWithShadow(this.displayString, 0, 0, textColor);
             }

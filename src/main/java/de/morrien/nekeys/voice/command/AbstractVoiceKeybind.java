@@ -1,5 +1,6 @@
 package de.morrien.nekeys.voice.command;
 
+import de.morrien.nekeys.api.command.AbstractVoiceCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 
@@ -12,7 +13,8 @@ public abstract class AbstractVoiceKeybind extends AbstractVoiceCommand {
 
     protected KeyBinding keybind;
 
-    protected AbstractVoiceKeybind() {}
+    protected AbstractVoiceKeybind() {
+    }
 
     public AbstractVoiceKeybind(String name, String command, KeyBinding keybind) {
         super(name, command);

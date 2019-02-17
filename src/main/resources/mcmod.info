@@ -3,11 +3,13 @@
     "modid": "nekeys",
     "name": "Not Enough Keys",
     "description": "Adds keybinding presets and the possibility to use voice commands to trigger keybinds and other things.\n\n This mod uses the Sphinx 4 library which can be found on https://github.com/cmusphinx/sphinx4",
-    "version": "1.0.0",
-    "mcversion": "1.12.2",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
     "url": "https://minecraft.curseforge.com/projects/nekeys",
     "updateUrl": "https://raw.githubusercontent.com/Hialus/forge_mod_update_check/master/nekeys.json",
-    "authorList": ["Timor Morrien"],
+    "authorList": [
+      "Timor Morrien"
+    ],
     "credits": "The Sphinx4 Team for their awesome speech recognition system",
     "logoFile": "",
     "screenshots": [],
