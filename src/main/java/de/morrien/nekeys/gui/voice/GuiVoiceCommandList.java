@@ -194,25 +194,18 @@ public class GuiVoiceCommandList extends GuiListExtended {
             this.ruleTextField.setMaxStringLength(Integer.MAX_VALUE);
             this.ruleTextField.setText(command.getRuleContent());
             checkValid(ruleTextField.getText());
+            checkName();
         }
 
         @Override
         public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks) {
-            if (!nameTextField.getText().equals(command.getName()))
-                for (CommandEntry listEntry : listEntries) {
-                    listEntry.nameTextField.setTextColor(0xFFFFFF);
-                    for (CommandEntry listEntry2 : listEntries) {
-                        if (listEntry != listEntry2 && listEntry.nameTextField.getText().equals(listEntry2.nameTextField.getText())) {
-                            listEntry.nameTextField.setTextColor(0xFF0000);
-                        }
-                    }
-                }
             command.setName(nameTextField.getText());
             if (!ruleTextField.getText().equals(command.getRuleContent())) {
                 String text = ruleTextField.getText();
                 checkValid(text);
                 command.setRuleContent(ruleTextField.getText());
             }
+            checkName();
 
             GlStateManager.disableRescaleNormal();
             RenderHelper.disableStandardItemLighting();
@@ -316,6 +309,17 @@ public class GuiVoiceCommandList extends GuiListExtended {
             else
                 ruleTextField.setTextColor(0xFF0000);
             return valid;
+        }
+
+        private void checkName() {
+            for (CommandEntry listEntry : listEntries) {
+                listEntry.nameTextField.setTextColor(0xFFFFFF);
+                for (CommandEntry listEntry2 : listEntries) {
+                    if (listEntry != listEntry2 && listEntry.nameTextField.getText().equals(listEntry2.nameTextField.getText())) {
+                        listEntry.nameTextField.setTextColor(0xFF0000);
+                    }
+                }
+            }
         }
 
         @Override
