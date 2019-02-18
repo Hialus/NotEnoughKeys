@@ -2,7 +2,6 @@ package de.morrien.nekeys;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.lwjgl.glfw.GLFW;
 
 /**

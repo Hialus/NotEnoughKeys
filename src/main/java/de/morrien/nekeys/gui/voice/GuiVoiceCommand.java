@@ -163,8 +163,8 @@ public class GuiVoiceCommand extends GuiScreen {
     }
 
 /**
-     * Called from the main game loop to update the screen.
-     */
+ * Called from the main game loop to update the screen.
+ */
     //@Override
     //public void updateScreen() {
     //    super.updateScreen();

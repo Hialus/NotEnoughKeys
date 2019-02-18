@@ -9,10 +9,12 @@ import de.morrien.nekeys.url.ResourceHandler;
 import de.morrien.nekeys.voice.VoiceHandler;
 import de.morrien.nekeys.voice.command.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiControls;
+import net.minecraft.client.gui.GuiKeyBindingList;
+import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -21,26 +23,20 @@ import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.ModJarURLHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.net.URLStreamHandlerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Created by Timor Morrien
@@ -50,24 +46,26 @@ public class NotEnoughKeys {
 
     public static NotEnoughKeys instance;
 
-    public static Logger logger = LogManager.getLogger();;
+    public static Logger logger = LogManager.getLogger();
     private static GuiControls currentGui;
     private static GuiButton[] guiButtons = new GuiButton[10];
     private static boolean needsInit = true;
     public Path configDirectory;
     public VoiceHandler voiceHandler;
     public PresetManager presetManager;
+    private boolean openGUI = false;
 
     public NotEnoughKeys() {
         instance = this;
+
         // This is necessary to enable Sphinx4 to load the custom minecraft-dictionary
         try {
             Class<URL> urlClass = URL.class;
-            Field field =urlClass.getDeclaredField("factory");
+            Field field = urlClass.getDeclaredField("factory");
             field.setAccessible(true);
             //URLStreamHandlerFactory oldFactory = (URLStreamHandlerFactory) field.get(null);
 
-            CustomStreamHandlerFactory newFactory = new CustomStreamHandlerFactory("resource", new ResourceHandler());
+            CustomStreamHandlerFactory newFactory = new CustomStreamHandlerFactory("rsc", new ResourceHandler());
             field.set(null, newFactory);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
@@ -98,13 +96,6 @@ public class NotEnoughKeys {
     }
 
     @SubscribeEvent
-    public void config(ModConfig.ModConfigEvent event) {
-        event.getConfig().getFileName();
-    }
-
-    boolean openGUI = false;
-
-    @SubscribeEvent
     public void chat(ClientChatEvent event) {
         if (event.getMessage().equals("#voice")) {
             openGUI = true;
@@ -115,7 +106,7 @@ public class NotEnoughKeys {
     @SubscribeEvent
     public void setup(FMLClientSetupEvent event) {
         // Setup config
-        configDirectory = Paths.get("D:/").resolve(Reference.MODID);//event.getModConfigurationDirectory().toPath().resolve(Reference.MODID);
+        configDirectory = Minecraft.getInstance().gameDir.toPath().resolve("config").resolve(Reference.MODID).resolve("glfw");//event.getModConfigurationDirectory().toPath().resolve(Reference.MODID);
         try {
             if (!Files.exists(configDirectory)) {
                 Files.createDirectory(configDirectory);

@@ -12,11 +12,7 @@ import edu.cmu.sphinx.recognizer.Recognizer;
 import edu.cmu.sphinx.result.Result;
 import edu.cmu.sphinx.util.props.ConfigurationManager;
 import edu.cmu.sphinx.util.props.PropertyException;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
@@ -39,9 +35,7 @@ public class SpeechRecognizer implements Runnable {
 
     public SpeechRecognizer() {
         try {
-            URL configURL = getClass().getResource("/assets/nekeys/voice/config.xml");
-            if (configURL == null)
-                configURL = new File("../build/resources/main/assets/nekeys/voice/config.xml").toURL();
+            URL configURL = new URL("modjar://nekeys/assets/nekeys/voice/config.xml");
             cm = new ConfigurationManager(configURL);
 
             recognizer = cm.lookup("recognizer");
