@@ -25,8 +25,8 @@ public class ChatVoiceCommand extends AbstractVoiceCommand {
 
     @Override
     public void activate(String voiceCommand) {
-        if (chatMessage != null && Minecraft.getMinecraft().player != null) {
-            Minecraft.getMinecraft().player.sendChatMessage(chatMessage);
+        if (chatMessage != null && Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendChatMessage(chatMessage);
         }
     }
 

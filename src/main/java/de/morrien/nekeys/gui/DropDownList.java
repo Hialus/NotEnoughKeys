@@ -2,7 +2,7 @@ package de.morrien.nekeys.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import org.lwjgl.input.Mouse;
+import net.minecraft.client.gui.IGuiEventListener;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by Timor Morrien
  */
-public class DropDownList<E> extends Gui {
+public class DropDownList<E> extends Gui implements IGuiEventListener {
 
     public final List<E> optionsList;
     public Stringfier<E> stringifier;
@@ -45,7 +45,7 @@ public class DropDownList<E> extends Gui {
         if (cellRenderer != null && selection != null) {
             cellRenderer.render(selection, x + 1, y + 2, width - 3, this);
         } else {
-            drawString(Minecraft.getMinecraft().fontRenderer, selection == null ? "None" : stringifier.toString(selection), x + 5, y + 5, 0xFFFFFF);
+            drawString(Minecraft.getInstance().fontRenderer, selection == null ? "None" : stringifier.toString(selection), x + 5, y + 5, 0xFFFFFF);
         }
         int buttonHeight = height - 2;
         drawRect(x + width - buttonHeight - 1, y + 1, x + width - 1, y + 1 + buttonHeight, 0xFF565656);
@@ -54,9 +54,9 @@ public class DropDownList<E> extends Gui {
         GL11.glTranslated(x + width - buttonHeight + 1, y - 3, 0);
         GL11.glScaled(3.6, 3, 1);
         if (expanded) {
-            drawString(Minecraft.getMinecraft().fontRenderer, "\u25B2", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
+            drawString(Minecraft.getInstance().fontRenderer, "\u25B2", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
         } else {
-            drawString(Minecraft.getMinecraft().fontRenderer, "\u25BC", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
+            drawString(Minecraft.getInstance().fontRenderer, "\u25BC", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
         }
         GL11.glPopMatrix();
 
@@ -68,7 +68,7 @@ public class DropDownList<E> extends Gui {
                 if (cellRenderer != null) {
                     cellRenderer.render(optionsList.get(i), x + 1, y + height + offset * cellHeight, width - 3, this);
                 } else {
-                    drawString(Minecraft.getMinecraft().fontRenderer, stringifier.toString(optionsList.get(i)), x + 5, y + height + offset * cellHeight + 2, 0xFFFFFF);
+                    drawString(Minecraft.getInstance().fontRenderer, stringifier.toString(optionsList.get(i)), x + 5, y + height + offset * cellHeight + 2, 0xFFFFFF);
                 }
                 drawHorizontalLine(x, x + width - 1, y + height + offset * cellHeight + cellHeight - 1, 0xFFFFFFFF);
                 offset++;
@@ -76,7 +76,8 @@ public class DropDownList<E> extends Gui {
         }
     }
 
-    public boolean onClick(int mouseX, int mouseY) {
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int buttonHeight = height - 2;
         if (mouseX >= x + width - buttonHeight - 1 &&
                 mouseX <= x + width - 1 &&
@@ -103,20 +104,22 @@ public class DropDownList<E> extends Gui {
         return false;
     }
 
-    public void handleMouseInput() {
-        int deltaY = Mouse.getEventDWheel();
-
-        if (deltaY != 0) {
-            if (deltaY > 0)
-                deltaY = -1;
+    @Override
+    public boolean mouseScrolled(double delta) {
+        if (!expanded) return false;
+        if (delta != 0) {
+            if (delta > 0)
+                delta = -1;
             else
-                deltaY = 1;
+                delta = 1;
 
             if (expandHeight < optionsList.size())
-                scrollPosition += deltaY;
+                scrollPosition += delta;
         }
         if (scrollPosition >= optionsList.size() - expandHeight) scrollPosition = optionsList.size() - expandHeight;
         if (scrollPosition < 0) scrollPosition = 0;
+
+        return true;
     }
 
     public interface Stringfier<E> {

@@ -2,13 +2,14 @@ package de.morrien.nekeys.api.popup;
 
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.IGuiEventListener;
 
 /**
  * Represents a popup for a VoiceCommand. This popup will be presented to user to change the settings of the command
  *
  * @author Timor Morrien
  */
-public abstract class AbstractPopup extends Gui {
+public abstract class AbstractPopup extends Gui implements IGuiEventListener {
 
     protected String name;
     protected String rule;
@@ -24,16 +25,6 @@ public abstract class AbstractPopup extends Gui {
     }
 
     public abstract void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks);
-
-    public boolean onClick(int mouseX, int mouseY) {
-        return false;
-    }
-
-    public void keyTyped(char typedChar, int keyCode) {
-    }
-
-    public void handleMouseInput() {
-    }
 
     public String getName() {
         return name;

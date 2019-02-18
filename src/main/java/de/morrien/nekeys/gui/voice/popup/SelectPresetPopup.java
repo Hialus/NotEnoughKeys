@@ -9,7 +9,7 @@ import de.morrien.nekeys.voice.command.SelectPresetVoiceCommand;
  * Created by Timor Morrien
  */
 public class SelectPresetPopup extends AbstractPopup {
-    protected DropDownList<Integer> guiDropDown;
+    protected DropDownList<Integer> presetDropDown;
 
     public SelectPresetPopup(String name, String rule) {
         super(name, rule);
@@ -19,38 +19,41 @@ public class SelectPresetPopup extends AbstractPopup {
     public SelectPresetPopup(SelectPresetVoiceCommand voiceCommand) {
         super(voiceCommand);
         init();
-        guiDropDown.selection = voiceCommand.getPreset();
+        presetDropDown.selection = voiceCommand.getPreset();
     }
 
     protected void init() {
-        guiDropDown = new DropDownList<>(0, 0, 0, 18, 6);
+        presetDropDown = new DropDownList<>(0, 0, 0, 18, 6);
         for (int i = 1; i <= 10; i++) {
-            guiDropDown.optionsList.add(i);
+            presetDropDown.optionsList.add(i);
         }
     }
 
     @Override
     public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        guiDropDown.x = x + 5;
-        guiDropDown.y = y + 2;
-        guiDropDown.width = width - 10;
-        guiDropDown.draw();
+        presetDropDown.x = x + 5;
+        presetDropDown.y = y + 2;
+        presetDropDown.width = width - 10;
+        presetDropDown.draw();
     }
 
     @Override
-    public boolean onClick(int mouseX, int mouseY) {
-        if (guiDropDown.onClick(mouseX, mouseY)) return true;
-        return super.onClick(mouseX, mouseY);
+    public boolean mouseClicked(double mouseX, double mouseY, int delta) {
+        return presetDropDown.mouseClicked(mouseX, mouseY, delta);
     }
 
     @Override
-    public void handleMouseInput() {
-        super.handleMouseInput();
-        guiDropDown.handleMouseInput();
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        return presetDropDown.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double delta) {
+        return presetDropDown.mouseScrolled(delta);
     }
 
     @Override
     public IVoiceCommand getCommand() {
-        return new SelectPresetVoiceCommand(name, rule, guiDropDown.selection);
+        return new SelectPresetVoiceCommand(name, rule, presetDropDown.selection);
     }
 }

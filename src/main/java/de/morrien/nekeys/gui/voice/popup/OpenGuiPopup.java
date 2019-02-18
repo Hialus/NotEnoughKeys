@@ -40,7 +40,7 @@ public class OpenGuiPopup extends AbstractPopup {
 
     @Override
     public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(Minecraft.getMinecraft().fontRenderer, I18n.format("gui.nekey.popup.selectPreset"), x + 6, y + 4, 0xFFFFFFFF);
+        drawString(Minecraft.getInstance().fontRenderer, I18n.format("gui.nekey.popup.selectPreset"), x + 6, y + 4, 0xFFFFFFFF);
 
         guiDropDown.x = x + 5;
         guiDropDown.y = y + 16;
@@ -48,16 +48,15 @@ public class OpenGuiPopup extends AbstractPopup {
         guiDropDown.draw();
     }
 
+
     @Override
-    public boolean onClick(int mouseX, int mouseY) {
-        if (guiDropDown.onClick(mouseX, mouseY)) return true;
-        return super.onClick(mouseX, mouseY);
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return guiDropDown.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
-    public void handleMouseInput() {
-        super.handleMouseInput();
-        guiDropDown.handleMouseInput();
+    public boolean mouseScrolled(double delta) {
+        return guiDropDown.mouseScrolled(delta);
     }
 
     @Override

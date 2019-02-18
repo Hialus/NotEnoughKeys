@@ -22,15 +22,17 @@ public class BetterButton extends GuiButton {
     }
 
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+    public void render(int mouseX, int mouseY, float partialTicks) {
         if (this.visible) {
+            y += 2;
+            Minecraft mc = Minecraft.getInstance();
             FontRenderer fontrenderer = mc.fontRenderer;
             mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
             int i = this.getHoverState(this.hovered);
             GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
             this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height / 2);
@@ -39,11 +41,11 @@ public class BetterButton extends GuiButton {
             this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height / 2);
             this.drawTexturedModalRect(this.x + this.width / 2, this.y + this.height / 2, 200 - this.width / 2, 46 + i * 20 + (20 - this.height / 2), this.width / 2, this.height / 2);
 
-            this.mouseDragged(mc, mouseX, mouseY);
+            // TODO: this.mouseDragged(mc, mouseX, mouseY);
             int textColor = 0xE0E0E0;
 
-            if (packedFGColour != 0) {
-                textColor = packedFGColour;
+            if (packedFGColor != 0) {
+                textColor = packedFGColor;
             } else if (!this.enabled) {
                 textColor = 0xA0A0A0;
             } else if (this.hovered) {
@@ -57,7 +59,7 @@ public class BetterButton extends GuiButton {
                 fontrenderer.drawStringWithShadow(this.displayString, 0, 0, textColor);
             }
             GL11.glPopMatrix();
-
+            y -= 2;
             //this.drawCenteredString(fontrenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, textColor);
         }
     }

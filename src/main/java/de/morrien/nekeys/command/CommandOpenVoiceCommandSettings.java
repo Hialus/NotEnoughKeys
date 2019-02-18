@@ -1,31 +1,20 @@
 package de.morrien.nekeys.command;
 
+import com.mojang.brigadier.CommandDispatcher;
 import de.morrien.nekeys.gui.voice.GuiVoiceCommand;
 import net.minecraft.client.Minecraft;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.client.IClientCommand;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
 
-public class CommandOpenVoiceCommandSettings extends CommandBase implements IClientCommand {
+public class CommandOpenVoiceCommandSettings { // TODO
 
-    @Override
-    public String getName() {
-        return "voice";
-    }
-
-    @Override
-    public String getUsage(ICommandSender sender) {
-        return "/voice";
-    }
-
-    @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
-        Minecraft.getMinecraft().displayGuiScreen(new GuiVoiceCommand());
-    }
-
-    @Override
-    public boolean allowUsageWithoutPrefix(ICommandSender sender, String message) {
-        return false;
+    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+        dispatcher.register(Commands.literal("voice")
+                .requires(source -> source.hasPermissionLevel(0))
+                .executes(context -> {
+                    Minecraft.getInstance().displayGuiScreen(new GuiVoiceCommand());
+                    return 1;
+                })
+        );
     }
 }

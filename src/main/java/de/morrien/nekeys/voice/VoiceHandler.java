@@ -6,7 +6,7 @@ import de.morrien.nekeys.api.VoiceCommandFactory;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.command.IVoiceCommandTickable;
 import de.morrien.nekeys.voice.command.OpenGuiVoiceCommand;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.util.InputMappings;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,7 +43,7 @@ public class VoiceHandler {
     }
 
     public void tickUpdate() {
-        if (Keyboard.isKeyDown(Keybindings.PUSH_TO_TALK.getKeyCode())) {
+        if (InputMappings.isKeyDown(Keybindings.PUSH_TO_TALK.getKey().getKeyCode())) {
             if (!recognizer.recording) {
                 recognizer.recording = true;
                 tickBuffer = 20;

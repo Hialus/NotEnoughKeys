@@ -27,29 +27,47 @@ public class ChatPopup extends AbstractPopup {
     }
 
     protected void init() {
-        chatMessageTextField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 1000, 18);
+        chatMessageTextField = new GuiTextField(0, Minecraft.getInstance().fontRenderer, 0, 0, 1000, 18);
         chatMessageTextField.setMaxStringLength(256);
     }
 
     @Override
     public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(Minecraft.getMinecraft().fontRenderer, I18n.format("gui.nekey.popup.chat"), x + 6, y + 4, 0xFFFFFFFF);
+        drawString(Minecraft.getInstance().fontRenderer, I18n.format("gui.nekey.popup.chat"), x + 6, y + 4, 0xFFFFFFFF);
         chatMessageTextField.x = x + 6;
         chatMessageTextField.y = y + 16;
         chatMessageTextField.width = width - 12;
-        chatMessageTextField.drawTextBox();
+        chatMessageTextField.drawTextField(mouseX, mouseY, partialTicks);
     }
 
     @Override
-    public boolean onClick(int mouseX, int mouseY) {
-        if (chatMessageTextField.mouseClicked(mouseX, mouseY, 0)) return true;
-        return super.onClick(mouseX, mouseY);
+    public boolean mouseClicked(double mouseX, double mouseY, int delta) {
+        return chatMessageTextField.mouseClicked(mouseX, mouseY, delta);
     }
 
     @Override
-    public void keyTyped(char typedChar, int keyCode) {
-        if (!chatMessageTextField.textboxKeyTyped(typedChar, keyCode))
-            super.keyTyped(typedChar, keyCode);
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        return chatMessageTextField.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double delta) {
+        return chatMessageTextField.mouseScrolled(delta);
+    }
+
+    @Override
+    public boolean charTyped(char typedChar, int keyCode) {
+        return chatMessageTextField.charTyped(typedChar, keyCode);
+    }
+
+    @Override
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
+        return chatMessageTextField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+    }
+
+    @Override
+    public boolean keyReleased(int p_keyReleased_1_, int p_keyReleased_2_, int p_keyReleased_3_) {
+        return chatMessageTextField.keyReleased(p_keyReleased_1_, p_keyReleased_2_, p_keyReleased_3_);
     }
 
     @Override

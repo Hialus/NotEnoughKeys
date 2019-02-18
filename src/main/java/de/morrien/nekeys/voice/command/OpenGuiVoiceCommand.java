@@ -58,30 +58,30 @@ public class OpenGuiVoiceCommand extends AbstractVoiceCommand {
         MENU("gui.nekeys.mainmenu.name") {
             @Override
             public void openGui() {
-                if (Minecraft.getMinecraft().world == null) {
-                    Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
+                if (Minecraft.getInstance().world == null) {
+                    Minecraft.getInstance().displayGuiScreen(new GuiMainMenu());
                 } else {
-                    Minecraft.getMinecraft().displayInGameMenu();
+                    Minecraft.getInstance().displayInGameMenu();
                 }
             }
         },
         CONTROLS("gui.nekeys.controls.name") {
             @Override
             public void openGui() {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiControls(null, Minecraft.getMinecraft().gameSettings));
+                Minecraft.getInstance().displayGuiScreen(new GuiControls(null, Minecraft.getInstance().gameSettings));
             }
         },
         VOICE_COMMANDS("gui.nekeys.voice_commands.title") {
             @Override
             public void openGui() {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiVoiceCommand());
+                Minecraft.getInstance().displayGuiScreen(new GuiVoiceCommand());
             }
         },
         INVENTORY("gui.nekeys.inventory.name") {
             @Override
             public void openGui() {
-                if (Minecraft.getMinecraft().world != null)
-                    Minecraft.getMinecraft().displayGuiScreen(new GuiInventory(Minecraft.getMinecraft().player));
+                if (Minecraft.getInstance().world != null)
+                    Minecraft.getInstance().displayGuiScreen(new GuiInventory(Minecraft.getInstance().player));
             }
         };
 

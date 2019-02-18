@@ -8,9 +8,10 @@ import java.util.Map;
 public class CustomStreamHandlerFactory implements URLStreamHandlerFactory {
     private final Map<String, URLStreamHandler> protocolHandlers;
 
-    public CustomStreamHandlerFactory(String protocol, URLStreamHandler urlHandler) {
+    public CustomStreamHandlerFactory(String protocol, URLStreamHandler handler) {
+        super();
         protocolHandlers = new HashMap<>();
-        addHandler(protocol, urlHandler);
+        addHandler(protocol, handler);
     }
 
     public void addHandler(String protocol, URLStreamHandler urlHandler) {

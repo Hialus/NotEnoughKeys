@@ -3,6 +3,7 @@ package de.morrien.nekeys.gui.voice;
 import de.morrien.nekeys.NotEnoughKeys;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
+import de.morrien.nekeys.gui.BetterButton;
 import de.morrien.nekeys.gui.DropDownList;
 import de.morrien.nekeys.voice.command.EmptyVoiceCommand;
 import net.minecraft.client.Minecraft;
@@ -14,16 +15,15 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.awt.*;
-import java.io.IOException;
 
 /**
  * Created by Timor Morrien
  */
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class GuiVoiceCommand extends GuiScreen {
 
     /**
@@ -57,10 +57,42 @@ public class GuiVoiceCommand extends GuiScreen {
     public void initGui() {
         this.voiceCommandList = new GuiVoiceCommandList(this, this.mc);
         this.screenTitle = I18n.format("gui.nekeys.voice_commands.title");
-        this.buttonList.add(new GuiButton(100, this.width / 2 - 175 + 181, this.height - 29, 150, 20, I18n.format("gui.done")));
-        this.buttonList.add(new GuiButton(101, this.width / 2 - 175, this.height - 29, 150, 20, I18n.format("gui.nekeys.reload")));
-        this.buttonList.add(new GuiButton(102, this.width / 2 - 175, this.height - 54, 150, 20, I18n.format("gui.nekeys.createNew")));
-        this.buttonList.add(new GuiButton(103, this.width / 2 - 175 + 181, this.height - 54, 150, 20, I18n.format("gui.nekeys.clone")));
+        addButton(new BetterButton(100, this.width / 2 - 175 + 181, this.height - 29, 150, 20, I18n.format("gui.done")) {
+            @Override
+            public void onClick(double mouseX, double mouseY) {
+                super.onClick(mouseX, mouseY);
+                mc.displayGuiScreen(parentScreen);
+            }
+        });
+        addButton(new BetterButton(101, this.width / 2 - 175, this.height - 29, 150, 20, I18n.format("gui.nekeys.reload")) {
+            @Override
+            public void onClick(double mouseX, double mouseY) {
+                super.onClick(mouseX, mouseY);
+                NotEnoughKeys.instance.voiceHandler.reloadConfig();
+                voiceCommandList.loadCommands();
+            }
+        });
+        addButton(new BetterButton(102, this.width / 2 - 175, this.height - 54, 150, 20, I18n.format("gui.nekeys.createNew")) {
+            @Override
+            public void onClick(double mouseX, double mouseY) {
+                super.onClick(mouseX, mouseY);
+                voiceCommandList.getChildren().add(voiceCommandList.newEntry(new EmptyVoiceCommand("empty", "")));
+            }
+        });
+        addButton(new BetterButton(103, this.width / 2 - 175 + 181, this.height - 54, 150, 20, I18n.format("gui.nekeys.clone")) {
+            @Override
+            public void onClick(double mouseX, double mouseY) {
+                super.onClick(mouseX, mouseY);
+                voiceCommandList.activeAction = commandEntry -> {
+                    int index = voiceCommandList.getChildren().indexOf(commandEntry);
+                    IVoiceCommand command = NotEnoughKeys.instance.voiceHandler.factoryMap.newVoiceCommand(commandEntry.getCommand());
+                    GuiVoiceCommandList.CommandEntry entry = voiceCommandList.newEntry(command);
+                    voiceCommandList.getChildren().add(index, entry);
+                    voiceCommandList.activeAction = null;
+                    return true;
+                };
+            }
+        });
     }
 
     @Override
@@ -68,93 +100,82 @@ public class GuiVoiceCommand extends GuiScreen {
         voiceCommandList.save();
     }
 
-    /**
-     * Handles mouse input.
-     */
     @Override
-    public void handleMouseInput() throws IOException {
-        super.handleMouseInput();
+    public boolean mouseScrolled(double delta) {
+        if (activeSettings != null)
+            return activeSettings.mouseScrolled(delta);
+        return voiceCommandList.mouseScrolled(delta);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (activeSettings != null) {
-            activeSettings.dropDownList.handleMouseInput();
-            activeSettings.voiceCommandPopup.handleMouseInput();
-        } else {
-            this.voiceCommandList.handleMouseInput();
+            return activeSettings.mouseClicked(mouseX, mouseY, button);
         }
+        if (this.voiceCommandList.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     @Override
-    protected void actionPerformed(GuiButton button) {
-        if (button.id == 100) {
-            this.mc.displayGuiScreen(this.parentScreen);
-        } else if (button.id == 101) {
-            NotEnoughKeys.instance.voiceHandler.reloadConfig();
-            voiceCommandList.loadCommands();
-        } else if (button.id == 102) {
-            voiceCommandList.listEntries.add(voiceCommandList.newEntry(new EmptyVoiceCommand("empty", "")));
-        } else if (button.id == 103) {
-            voiceCommandList.activeAction = commandEntry -> {
-                int index = voiceCommandList.listEntries.indexOf(commandEntry);
-                IVoiceCommand command = NotEnoughKeys.instance.voiceHandler.factoryMap.newVoiceCommand(commandEntry.getCommand());
-                GuiVoiceCommandList.CommandEntry entry = voiceCommandList.newEntry(command);
-                voiceCommandList.listEntries.add(index, entry);
-                voiceCommandList.activeAction = null;
-                return true;
-            };
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button != 0 || !this.voiceCommandList.mouseReleased(mouseX, mouseY, button)) {
+            super.mouseReleased(mouseX, mouseY, button);
         }
+        return super.mouseReleased(mouseX, mouseX, button);
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+    public boolean charTyped(char typedChar, int keyCode) {
         if (activeSettings != null) {
-            activeSettings.onClick(mouseX, mouseY);
-            return;
+            return activeSettings.voiceCommandPopup.charTyped(typedChar, keyCode);
         }
-        if (mouseButton != 0 || !this.voiceCommandList.mouseClicked(mouseX, mouseY, mouseButton)) {
-            super.mouseClicked(mouseX, mouseY, mouseButton);
+        if (this.voiceCommandList.charTyped(typedChar, keyCode)) {
+            return true;
         }
-    }
 
-    /**
-     * Called when a mouse button is released.
-     */
-    protected void mouseReleased(int mouseX, int mouseY, int state) {
-        if (state != 0 || !this.voiceCommandList.mouseReleased(mouseX, mouseY, state)) {
-            super.mouseReleased(mouseX, mouseY, state);
-        }
+        return super.charTyped(typedChar, keyCode);
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
         if (activeSettings != null) {
-            activeSettings.voiceCommandPopup.keyTyped(typedChar, keyCode);
-        } else {
-            if (keyCode == 1 || !this.voiceCommandList.keyTyped(typedChar, keyCode)) {
-                //if (keyCode == 1) voiceCommandList.save();
-                super.keyTyped(typedChar, keyCode);
-            }
+            return activeSettings.voiceCommandPopup.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
         }
+        if (this.voiceCommandList.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_)) {
+            return true;
+        }
+
+        return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
     }
 
-    /**
+    @Override
+    public boolean keyReleased(int p_keyReleased_1_, int p_keyReleased_2_, int p_keyReleased_3_) {
+        if (activeSettings != null) {
+            return activeSettings.voiceCommandPopup.keyReleased(p_keyReleased_1_, p_keyReleased_2_, p_keyReleased_3_);
+        }
+        if (this.voiceCommandList.keyReleased(p_keyReleased_1_, p_keyReleased_2_, p_keyReleased_3_)) {
+            return true;
+        }
+
+        return super.keyReleased(p_keyReleased_1_, p_keyReleased_2_, p_keyReleased_3_);
+    }
+
+/**
      * Called from the main game loop to update the screen.
      */
-    @Override
-    public void updateScreen() {
-        super.updateScreen();
-        voiceCommandList.update();
-    }
+    //@Override
+    //public void updateScreen() {
+    //    super.updateScreen();
+    //    voiceCommandList.update();
+    //}
 
     /**
      * Draws the screen and all the components in it.
      */
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void render(int mouseX, int mouseY, float partialTicks) {
         int mX = mouseX;
         int mY = mouseY;
         if (activeSettings != null) {
@@ -167,7 +188,7 @@ public class GuiVoiceCommand extends GuiScreen {
         double x = voiceCommandList.left + width / 2d - voiceCommandList.getListWidth() / 2d + 2;
         drawCenteredString(fontRenderer, I18n.format("gui.nekeys.voice_commands.name"), (int) x + 20, 25, Color.ORANGE.getRGB());
         drawString(fontRenderer, I18n.format("gui.nekeys.voice_commands.rule"), (int) x + 60, 25, Color.ORANGE.getRGB());
-        super.drawScreen(mX, mouseY, partialTicks);
+        super.render(mX, mouseY, partialTicks);
 
         //drawHorizontalLine(this.width / 2 - 175, this.width / 2 - 175 + 330, this.height - 30, 0xFFFFFFFF);
         if (activeSettings != null) {
@@ -210,7 +231,17 @@ public class GuiVoiceCommand extends GuiScreen {
                 }
             });
             dropDownList.optionsList.sort((o1, o2) -> dropDownList.stringifier.toString(o1).compareToIgnoreCase(dropDownList.stringifier.toString(o2)));
-            this.saveButton = new GuiButton(0, width / 2 + 100 - 45, height / 2 + 60 - 23, 40, 20, "Save");
+            this.saveButton = new BetterButton(0, width / 2 + 100 - 45, height / 2 + 60 - 25, 40, 20, "Save") {
+                @Override
+                public void onClick(double mouseX, double mouseY) {
+                    super.onClick(mouseX, mouseY);
+                    saveButton.playPressSound(Minecraft.getInstance().getSoundHandler());
+                    commandEntry.setCommand(voiceCommandPopup.getCommand());
+                    activeSettings = null;
+                    buttons.remove(this);
+                }
+            };
+            addButton(saveButton);
         }
 
         public void draw(int mouseX, int mouseY, float partialTicks) {
@@ -225,8 +256,8 @@ public class GuiVoiceCommand extends GuiScreen {
 
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder bufferbuilder = tessellator.getBuffer();
-            mc.getTextureManager().bindTexture(new ResourceLocation("textures/blocks/planks_oak.png"));
-            GlStateManager.color(1F, 1F, 1F, 1F);
+            mc.getTextureManager().bindTexture(new ResourceLocation("textures/block/oak_planks.png"));
+            GlStateManager.color4f(1F, 1F, 1F, 1F);
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
             bufferbuilder.pos(dialogX, dialogY + dialogHeight, 0).tex(0, height / 64D).color(150, 150, 150, 255).endVertex();
             bufferbuilder.pos(dialogX + dialogWidth, dialogY + dialogHeight, 0).tex(width / 64D, height / 64D).color(150, 150, 150, 255).endVertex();
@@ -236,7 +267,7 @@ public class GuiVoiceCommand extends GuiScreen {
 
             //this.saveButton.x = width / 2 + 100 - 45;
             //this.saveButton.y = height / 2 + 60 - 23;
-            saveButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+            saveButton.render(mouseX, mouseY, partialTicks);
 
             if (lastSelection != dropDownList.selection) {
                 commandEntry.setCommand(NotEnoughKeys.instance.voiceHandler.factoryMap.get(dropDownList.selection).newCommand(commandEntry.getCommand().getName(), commandEntry.getCommand().getRuleContent()));
@@ -252,21 +283,20 @@ public class GuiVoiceCommand extends GuiScreen {
             dropDownList.draw();
         }
 
-        public void onClick(int mouseX, int mouseY) {
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (mouseX <= width / 2 - 102 ||
                     mouseX >= width / 2 + 102 ||
                     mouseY <= height / 2 - 62 ||
                     mouseY >= height / 2 + 62) {
                 activeSettings = null;
-                return;
+                buttons.remove(saveButton);
+                return true;
             }
-            if (!dropDownList.onClick(mouseX, mouseY) && !voiceCommandPopup.onClick(mouseX, mouseY)) {
-                if (saveButton.mousePressed(Minecraft.getMinecraft(), mouseX, mouseY)) {
-                    saveButton.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-                    commandEntry.setCommand(voiceCommandPopup.getCommand());
-                    activeSettings = null;
-                }
-            }
+            return dropDownList.mouseClicked(mouseX, mouseY, button) || voiceCommandPopup.mouseClicked(mouseX, mouseY, button) || saveButton.mouseClicked(mouseX, mouseY, button);
+        }
+
+        public boolean mouseScrolled(double delta) {
+            return dropDownList.mouseScrolled(delta) || voiceCommandPopup.mouseScrolled(delta);
         }
     }
 }

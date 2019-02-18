@@ -20,7 +20,7 @@ public class ToggleVoiceKeybind extends AbstractVoiceKeybind {
     @Override
     public void activate(String voiceCommand) {
         if (keybind != null)
-            KeyBinding.setKeyBindState(keybind.getKeyCode(), !keybind.isKeyDown());
+            KeyBinding.setKeyBindState(keybind.getKey(), !keybind.isKeyDown());
     }
 
     public static class Factory extends VoiceCommandFactory<ToggleVoiceKeybind> {

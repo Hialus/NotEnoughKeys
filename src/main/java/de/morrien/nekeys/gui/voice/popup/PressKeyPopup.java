@@ -1,6 +1,7 @@
 package de.morrien.nekeys.gui.voice.popup;
 
 import de.morrien.nekeys.api.popup.AbstractPopup;
+import de.morrien.nekeys.gui.BetterButton;
 import de.morrien.nekeys.voice.command.VoicePressKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -29,13 +30,13 @@ public class PressKeyPopup extends AbstractPopup {
     }
 
     protected void init() {
-        selectKeyButton = new GuiButton(0, 0, 0, "");
+        selectKeyButton = new BetterButton(0, 0, 0, "");
     }
 
     @Override
     public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(Minecraft.getMinecraft().fontRenderer, "Select key", x + 10, y + 7, 0xFFFFFFFF);
-        Minecraft.getMinecraft().fontRenderer.drawSplitString(I18n.format("gui.nekey.popup.wip"), x + 10, y + 30, width - 20, 0xFFFFFFFF);
+        drawString(Minecraft.getInstance().fontRenderer, "Select key", x + 10, y + 7, 0xFFFFFFFF);
+        Minecraft.getInstance().fontRenderer.drawSplitString(I18n.format("gui.nekey.popup.wip"), x + 10, y + 30, width - 20, 0xFFFFFFFF);
 
         selectKeyButton.x = x + width / 2 - 5;
         selectKeyButton.y = y + 2;
@@ -43,13 +44,12 @@ public class PressKeyPopup extends AbstractPopup {
         selectKeyButton.height = 20;
         selectKeyButton.displayString = keycode == 0 ? "None" : KeyEvent.getKeyText(keycode);
 
-        selectKeyButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+        selectKeyButton.render(mouseX, mouseY, partialTicks);
     }
 
     @Override
-    public boolean onClick(int mouseX, int mouseY) {
-        super.onClick(mouseX, mouseY);
-        if (selectKeyButton.mousePressed(Minecraft.getMinecraft(), mouseX, mouseY)) {
+    public boolean mouseClicked(double mouseX, double mouseY, int delta) {
+        if (selectKeyButton.mouseClicked(mouseX, mouseY, 0)) {
             listen = true;
             return true;
         }
@@ -57,12 +57,18 @@ public class PressKeyPopup extends AbstractPopup {
     }
 
     @Override
-    public void keyTyped(char typedChar, int keyCode) {
-        super.keyTyped(typedChar, keyCode);
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        return selectKeyButton.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean charTyped(char typedChar, int keyCode) {
         if (listen) {
             keycode = KeyEvent.getExtendedKeyCodeForChar(typedChar);
             listen = false;
+            return true;
         }
+        return false;
     }
 
     @Override

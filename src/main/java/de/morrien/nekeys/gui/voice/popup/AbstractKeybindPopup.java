@@ -29,7 +29,7 @@ public abstract class AbstractKeybindPopup extends AbstractPopup {
     protected void init() {
         keyBindingDropDown = new DropDownList<>(0, 0, 0, 18, 6);
         keyBindingDropDown.stringifier = keyBinding -> I18n.format(keyBinding.getKeyDescription());
-        keyBindingDropDown.optionsList.addAll(Arrays.asList(Minecraft.getMinecraft().gameSettings.keyBindings));
+        keyBindingDropDown.optionsList.addAll(Arrays.asList(Minecraft.getInstance().gameSettings.keyBindings));
     }
 
     @Override
@@ -41,22 +41,20 @@ public abstract class AbstractKeybindPopup extends AbstractPopup {
     }
 
     @Override
-    public boolean onClick(int mouseX, int mouseY) {
-        super.onClick(mouseX, mouseY);
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
         //if (!keyBindingDropDown.selection.equals("Select a KeyBinding") && (keyBinding == null || !keyBindingDropDown.selection.equals(keyBinding.getDisplayName()))) {
-        //    for (KeyBinding binding : Minecraft.getMinecraft().gameSettings.keyBindings) {
+        //    for (KeyBinding binding : Minecraft.getInstance().gameSettings.keyBindings) {
         //        if (keyBindingDropDown.selection.equals(I18n.format(binding.getKeyDescription()))) {
         //            keyBinding = binding;
         //            break;
         //        }
         //    }
         //}
-        return keyBindingDropDown.onClick(mouseX, mouseY);
+        return keyBindingDropDown.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
-    public void handleMouseInput() {
-        super.handleMouseInput();
-        keyBindingDropDown.handleMouseInput();
+    public boolean mouseScrolled(double delta) {
+        return keyBindingDropDown.mouseScrolled(delta);
     }
 }

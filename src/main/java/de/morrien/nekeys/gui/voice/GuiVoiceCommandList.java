@@ -16,8 +16,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,13 +27,13 @@ import java.util.Map;
 /**
  * Created by Timor Morrien
  */
-@SideOnly(Side.CLIENT)
-public class GuiVoiceCommandList extends GuiListExtended {
+@OnlyIn(Dist.CLIENT)
+public class GuiVoiceCommandList extends GuiListExtended<GuiVoiceCommandList.CommandEntry> {
 
     private final GuiVoiceCommand gui;
     private final Minecraft mc;
     public IAction activeAction;
-    List<CommandEntry> listEntries;
+    //List<CommandEntry> listEntries;
     private GuiTextField activeTextField;
 
     public GuiVoiceCommandList(GuiVoiceCommand gui, Minecraft mcIn) {
@@ -45,9 +45,8 @@ public class GuiVoiceCommandList extends GuiListExtended {
     }
 
     void loadCommands() {
-        listEntries = new ArrayList<>();
         for (IVoiceCommand voiceCommand : NotEnoughKeys.instance.voiceHandler.getVoiceCommands()) {
-            listEntries.add(new CommandEntry(voiceCommand));
+            getChildren().add(new CommandEntry(voiceCommand));
         }
     }
 
@@ -58,7 +57,7 @@ public class GuiVoiceCommandList extends GuiListExtended {
         // Use a Thread so the GUI won't freeze while saving
         new Thread(() -> {
             NotEnoughKeys.instance.voiceHandler.getVoiceCommands().clear();
-            for (CommandEntry entry : listEntries) {
+            for (CommandEntry entry : getChildren()) {
                 NotEnoughKeys.instance.voiceHandler.addVoiceCommand(entry.getCommand());
             }
             NotEnoughKeys.instance.voiceHandler.updateGrammar();
@@ -66,50 +65,58 @@ public class GuiVoiceCommandList extends GuiListExtended {
         }).start();
     }
 
+    /**
+     * Called when the mouse is clicked onto an entry.
+     *
+     * @param index  Index of the entry
+     * @param button The mouse button that was pressed.
+     * @param mouseX The mouse X coordinate.
+     * @param mouseY The mouse Y coordinate.
+     * @return true if the entry did something with the click and it should be selected.
+     */
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseEvent) {
-        if (activeTextField == null || !activeTextField.mouseClicked(mouseX, mouseY, mouseEvent)) {
-            return super.mouseClicked(mouseX, mouseY, mouseEvent);
+    protected boolean mouseClicked(int index, int button, double mouseX, double mouseY) {
+        if (activeTextField == null || !activeTextField.mouseClicked(mouseX, mouseY, button)) {
+            return super.mouseClicked(index, button, mouseX, mouseY);
         }
         return true;
     }
 
-    /**
-     * KeyTyped method to handle input for the textfields
-     *
-     * @param typedChar
-     * @param keyCode
-     * @return if the key type was used
-     */
-    boolean keyTyped(char typedChar, int keyCode) {
+    @Override
+    public boolean charTyped(char typedChar, int keyCode) {
         if (activeTextField != null) {
-            activeTextField.textboxKeyTyped(typedChar, keyCode);
+            activeTextField.charTyped(typedChar, keyCode);
             return true;
         }
         return false;
     }
 
-    public void update() {
-        if (activeTextField != null)
-            activeTextField.updateCursorCounter();
+    @Override
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
+        if (activeTextField != null) {
+            activeTextField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+            return true;
+        }
+        return false;
     }
+
+    @Override
+    public boolean keyReleased(int p_keyReleased_1_, int p_keyReleased_2_, int p_keyReleased_3_) {
+        if (activeTextField != null) {
+            activeTextField.keyReleased(p_keyReleased_1_, p_keyReleased_2_, p_keyReleased_3_);
+            return true;
+        }
+        return false;
+    }
+
+    // TODO
+    //public void update() {
+    //    if (activeTextField != null)
+    //        activeTextField.updateCursorCounter();
+    //}
 
     CommandEntry newEntry(IVoiceCommand command) {
         return new CommandEntry(command);
-    }
-
-    /*
-     * Overridden methods
-     */
-
-    @Override
-    protected int getSize() {
-        return listEntries.size();
-    }
-
-    @Override
-    public CommandEntry getListEntry(int index) {
-        return listEntries.get(index);
     }
 
     @Override
@@ -134,8 +141,8 @@ public class GuiVoiceCommandList extends GuiListExtended {
     protected void drawBackground() {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
-        this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/blocks/planks_jungle.png"));
-        GlStateManager.color(1F, 1F, 1F, 1F);
+        this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/block/jungle_planks.png"));
+        GlStateManager.color4f(1F, 1F, 1F, 1F);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         bufferbuilder.pos(0, (double) this.height, 0).tex(0, (double) ((float) this.height / 32F)).color(150, 150, 150, 255).endVertex();
         bufferbuilder.pos((double) this.width, (double) this.height, 0).tex((double) ((float) this.width / 32F), (double) ((float) this.height / 32F)).color(150, 150, 150, 255).endVertex();
@@ -151,8 +158,8 @@ public class GuiVoiceCommandList extends GuiListExtended {
     protected void overlayBackground(int startY, int endY, int startAlpha, int endAlpha) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
-        this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/blocks/planks_big_oak.png"));
-        GlStateManager.color(1F, 1F, 1F, 1F);
+        this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/block/dark_oak_planks.png"));
+        GlStateManager.color4f(1F, 1F, 1F, 1F);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         bufferbuilder.pos((double) this.left, (double) endY, 0).tex(0, (double) ((float) endY / 32F)).color(255, 255, 255, endAlpha).endVertex();
         bufferbuilder.pos((double) (this.left + this.width), (double) endY, 0).tex((double) ((float) this.width / 32F), (double) ((float) endY / 32F)).color(255, 255, 255, endAlpha).endVertex();
@@ -168,8 +175,8 @@ public class GuiVoiceCommandList extends GuiListExtended {
     /**
      * A list @see{GuiListExtended.IGuiListEntry} to display a VoiceCommand
      */
-    @SideOnly(Side.CLIENT)
-    public class CommandEntry implements GuiListExtended.IGuiListEntry {
+    @OnlyIn(Dist.CLIENT)
+    public class CommandEntry extends GuiListExtended.IGuiListEntry<CommandEntry> {
         private final GuiButton btnChangeKeyBinding;
         private final GuiButton btnDelete;
         private final GuiButton btnEdit;
@@ -182,15 +189,15 @@ public class GuiVoiceCommandList extends GuiListExtended {
 
         private CommandEntry(IVoiceCommand command) {
             this.command = command;
-            this.btnChangeKeyBinding = new GuiButton(0, 0, 0, 95, 20, "");
+            this.btnChangeKeyBinding = new BetterButton(0, 0, 0, 95, 20, "");
             this.btnDelete = new BetterButton(0, 0, 0, 50, 20, I18n.format("selectServer.delete"));
-            this.btnEdit = new GuiButton(0, 0, 0, 20, 20, "E");
+            this.btnEdit = new BetterButton(0, 0, 0, 20, 20, "E");
             this.upButton = new BetterButton(0, 0, 0, 10, 10, "\u25B2");
             this.downButton = new BetterButton(0, 0, 0, 10, 10, "\u25BC");
 
-            this.nameTextField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 40, 18);
+            this.nameTextField = new GuiTextField(0, Minecraft.getInstance().fontRenderer, 0, 0, 40, 18);
             this.nameTextField.setText(command.getName());
-            this.ruleTextField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 200, 18);
+            this.ruleTextField = new GuiTextField(0, Minecraft.getInstance().fontRenderer, 0, 0, 200, 18);
             this.ruleTextField.setMaxStringLength(Integer.MAX_VALUE);
             this.ruleTextField.setText(command.getRuleContent());
             checkValid(ruleTextField.getText());
@@ -198,7 +205,7 @@ public class GuiVoiceCommandList extends GuiListExtended {
         }
 
         @Override
-        public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks) {
+        public void drawEntry(int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks) {
             command.setName(nameTextField.getText());
             if (!ruleTextField.getText().equals(command.getRuleContent())) {
                 String text = ruleTextField.getText();
@@ -210,37 +217,39 @@ public class GuiVoiceCommandList extends GuiListExtended {
             GlStateManager.disableRescaleNormal();
             RenderHelper.disableStandardItemLighting();
             GlStateManager.disableLighting();
-            GlStateManager.disableDepth();
+            GlStateManager.disableDepthTest();
+            int x = getX();
+            int y = getY();
 
             int posY = y + slotHeight / 2 - GuiVoiceCommandList.this.mc.fontRenderer.FONT_HEIGHT / 2;
             this.nameTextField.x = x;
             this.nameTextField.y = posY - 5;
-            this.nameTextField.drawTextBox();
+            this.nameTextField.drawTextField(mouseX, mouseY, partialTicks);
             gui.drawVerticalLine(x + 45, posY - 7, posY + 14, 0xFFFFFFFF);
             this.ruleTextField.x = x + 51;
             this.ruleTextField.y = posY - 5;
-            this.ruleTextField.drawTextBox();
+            this.ruleTextField.drawTextField(mouseX, mouseY, partialTicks);
             this.btnEdit.x = x + 256;
             this.btnEdit.y = y;
-            this.btnEdit.drawButton(mc, mouseX, mouseY, partialTicks);
-            Minecraft.getMinecraft().getTextureManager().bindTexture(settingsIcon);
-            GlStateManager.color(1, 1, 1);
+            this.btnEdit.render(mouseX, mouseY, partialTicks);
+            Minecraft.getInstance().getTextureManager().bindTexture(settingsIcon);
+            GlStateManager.color3f(1, 1, 1);
             Gui.drawModalRectWithCustomSizedTexture(x + 258, posY - 4, 0, 0, 16, 15, 16, 16);
 
             this.upButton.x = x + 278;
             this.upButton.y = y;
             this.upButton.fontScale = 0.9;
-            this.upButton.drawButton(mc, mouseX, mouseY, partialTicks);
+            this.upButton.render(mouseX, mouseY, partialTicks);
             this.downButton.x = x + 278;
             this.downButton.y = y + 10;
             this.downButton.fontScale = 0.9;
-            this.downButton.drawButton(mc, mouseX, mouseY, partialTicks);
+            this.downButton.render(mouseX, mouseY, partialTicks);
 
             this.btnDelete.x = x + 280 + 10;
             this.btnDelete.y = y;
-            this.btnDelete.drawButton(mc, mouseX, mouseY, partialTicks);
-            if (listEntries.lastIndexOf(this) != listEntries.size() - 1) {
-                gui.drawHorizontalLine(x - 1, x + listWidth - 23 + 10, posY + 16, 0xFFFFFFFF);
+            this.btnDelete.render(mouseX, mouseY, partialTicks);
+            if (getChildren().lastIndexOf(this) != getChildren().size() - 1) {
+                gui.drawHorizontalLine(x - 1, x + entryWidth - 23 + 10, posY + 16, 0xFFFFFFFF);
             }
 
             if (btnEdit.isMouseOver()) {
@@ -249,7 +258,7 @@ public class GuiVoiceCommandList extends GuiListExtended {
                 GlStateManager.disableRescaleNormal();
                 RenderHelper.disableStandardItemLighting();
                 GlStateManager.disableLighting();
-                GlStateManager.disableDepth();
+                GlStateManager.disableDepthTest();
             }
         }
 
@@ -312,9 +321,9 @@ public class GuiVoiceCommandList extends GuiListExtended {
         }
 
         private void checkName() {
-            for (CommandEntry listEntry : listEntries) {
+            for (CommandEntry listEntry : getChildren()) {
                 listEntry.nameTextField.setTextColor(0xFFFFFF);
-                for (CommandEntry listEntry2 : listEntries) {
+                for (CommandEntry listEntry2 : getChildren()) {
                     if (listEntry != listEntry2 && listEntry.nameTextField.getText().equals(listEntry2.nameTextField.getText())) {
                         listEntry.nameTextField.setTextColor(0xFF0000);
                     }
@@ -323,36 +332,36 @@ public class GuiVoiceCommandList extends GuiListExtended {
         }
 
         @Override
-        public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY) {
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (activeAction != null && activeAction.perform(this)) {
                 return true;
             }
-            if (this.nameTextField.mouseClicked(mouseX, mouseY, mouseEvent)) {
+            if (this.nameTextField.mouseClicked(mouseX, mouseY, button)) {
                 activeTextField = nameTextField;
                 return true;
-            } else if (this.ruleTextField.mouseClicked(mouseX, mouseY, mouseEvent)) {
+            } else if (this.ruleTextField.mouseClicked(mouseX, mouseY, button)) {
                 activeTextField = ruleTextField;
                 return true;
-            } else if (this.btnEdit.mousePressed(mc, mouseX, mouseY)) {
-                btnEdit.playPressSound(Minecraft.getMinecraft().getSoundHandler());
+            } else if (this.btnEdit.mouseClicked(mouseX, mouseY, button)) {
+                btnEdit.playPressSound(Minecraft.getInstance().getSoundHandler());
                 gui.openSettings(this);
                 return true;
-            } else if (this.btnDelete.mousePressed(mc, mouseX, mouseY)) {
-                btnDelete.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-                listEntries.remove(this);
-            } else if (this.upButton.mousePressed(mc, mouseX, mouseY)) {
-                upButton.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-                int index = listEntries.indexOf(this);
+            } else if (this.btnDelete.mouseClicked(mouseX, mouseY, button)) {
+                btnDelete.playPressSound(Minecraft.getInstance().getSoundHandler());
+                getChildren().remove(this);
+            } else if (this.upButton.mouseClicked(mouseX, mouseY, button)) {
+                upButton.playPressSound(Minecraft.getInstance().getSoundHandler());
+                int index = getChildren().indexOf(this);
                 if (index != 0) {
-                    listEntries.remove(this);
-                    listEntries.add(index - 1, this);
+                    getChildren().remove(this);
+                    getChildren().add(index - 1, this);
                 }
-            } else if (this.downButton.mousePressed(mc, mouseX, mouseY)) {
-                downButton.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-                int index = listEntries.indexOf(this);
-                if (index != listEntries.size() - 1) {
-                    listEntries.remove(this);
-                    listEntries.add(index + 1, this);
+            } else if (this.downButton.mouseClicked(mouseX, mouseY, button)) {
+                downButton.playPressSound(Minecraft.getInstance().getSoundHandler());
+                int index = getChildren().indexOf(this);
+                if (index != getChildren().size() - 1) {
+                    getChildren().remove(this);
+                    getChildren().add(index + 1, this);
                 }
             }
             activeTextField = null;
@@ -360,13 +369,8 @@ public class GuiVoiceCommandList extends GuiListExtended {
         }
 
         @Override
-        public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY) {
-            this.btnChangeKeyBinding.mouseReleased(x, y);
-            this.btnDelete.mouseReleased(x, y);
-        }
-
-        @Override
-        public void updatePosition(int slotIndex, int x, int y, float partialTicks) {
+        public boolean mouseReleased(double x, double y, int button) {
+            return this.btnChangeKeyBinding.mouseReleased(x, y, button) || this.btnDelete.mouseReleased(x, y, button);
         }
 
         public GuiVoiceCommandList getList() {
