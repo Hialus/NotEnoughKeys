@@ -40,25 +40,25 @@ public class Keybindings {
     }
 
     public static void processKeybindings() {
-        if (PRESET_1.isPressed())
+        if (PRESET_1.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(0).load();
-        if (PRESET_2.isPressed())
+        if (PRESET_2.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(1).load();
-        if (PRESET_3.isPressed())
+        if (PRESET_3.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(2).load();
-        if (PRESET_4.isPressed())
+        if (PRESET_4.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(3).load();
-        if (PRESET_5.isPressed())
+        if (PRESET_5.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(4).load();
-        if (PRESET_6.isPressed())
+        if (PRESET_6.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(5).load();
-        if (PRESET_7.isPressed())
+        if (PRESET_7.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(6).load();
-        if (PRESET_8.isPressed())
+        if (PRESET_8.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(7).load();
-        if (PRESET_9.isPressed())
+        if (PRESET_9.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(8).load();
-        if (PRESET_10.isPressed())
+        if (PRESET_10.isDown())
             NotEnoughKeys.instance.presetManager.getPreset(9).load();
     }
 }

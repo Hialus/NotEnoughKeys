@@ -1,11 +1,13 @@
 package de.morrien.nekeys.gui.voice.popup;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.BetterButton;
 import de.morrien.nekeys.voice.command.VoicePressKey;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.awt.event.KeyEvent;
 
@@ -15,7 +17,7 @@ import java.awt.event.KeyEvent;
 public class PressKeyPopup extends AbstractPopup {
 
     protected int keycode = 0;
-    protected GuiButton selectKeyButton;
+    protected Button selectKeyButton;
     protected boolean listen;
 
     public PressKeyPopup(String name, String rule) {
@@ -30,35 +32,23 @@ public class PressKeyPopup extends AbstractPopup {
     }
 
     protected void init() {
-        selectKeyButton = new BetterButton(0, 0, 0, "");
+        selectKeyButton = new BetterButton(0, 0, 0, 0, StringTextComponent.EMPTY, button -> {
+            listen = true;
+        });
     }
 
     @Override
-    public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(Minecraft.getInstance().fontRenderer, "Select key", x + 10, y + 7, 0xFFFFFFFF);
-        Minecraft.getInstance().fontRenderer.drawSplitString(I18n.format("gui.nekey.popup.wip"), x + 10, y + 30, width - 20, 0xFFFFFFFF);
+    public void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+        drawString(matrixStack, Minecraft.getInstance().font, "Select key", x + 10, y + 7, 0xFFFFFFFF);
+        Minecraft.getInstance().font.drawWordWrap(new TranslationTextComponent("gui.nekey.popup.wip"), x + 10, y + 30, width - 20, 0xFFFFFFFF);
 
         selectKeyButton.x = x + width / 2 - 5;
         selectKeyButton.y = y + 2;
-        selectKeyButton.width = width / 2;
-        selectKeyButton.height = 20;
-        selectKeyButton.displayString = keycode == 0 ? "None" : KeyEvent.getKeyText(keycode);
+        selectKeyButton.setWidth(width / 2);
+        selectKeyButton.setHeight(20);
+        selectKeyButton.setMessage(new StringTextComponent(keycode == 0 ? "None" : KeyEvent.getKeyText(keycode)));
 
-        selectKeyButton.render(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int delta) {
-        if (selectKeyButton.mouseClicked(mouseX, mouseY, 0)) {
-            listen = true;
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        return selectKeyButton.mouseReleased(mouseX, mouseY, button);
+        selectKeyButton.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     @Override

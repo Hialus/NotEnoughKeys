@@ -1,0 +1,97 @@
+name: Build and Release
+
+on:
+  workflow_dispatch
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        include:
+          - version: 1.16.5
+            branch: 1.16
+            jdk: 8
+          - version: 1.17.1
+            branch: 1.17
+            jdk: 16
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ matrix.branch }}
+        lfs: true
+        fetch-depth: 0
+    
+    - name: Extract version
+      run: sed -n '/^mod_version=/p' gradle.properties >> $GITHUB_ENV
+      
+    - name: Print version
+      run: echo "Mod Version=${{ env.mod_version }}"
+
+    - name: Generate changelog
+      run: |
+        echo 'CHANGELOG<<EOF' >> $GITHUB_ENV
+        git log $(git describe --tags --abbrev=0 --always)..HEAD --no-merges --pretty="- %s" | grep -vE 'Revert|Update|\[NC\]' >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+      continue-on-error: true
+      
+    - name: Set up JDK ${{ matrix.jdk }}
+      uses: actions/setup-java@v2
+      with:
+        java-version: ${{ matrix.jdk }}
+        distribution: 'adopt'
+        
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Cache Gradle packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ matrix.version }}-${{ hashFiles('**/*.gradle') }}
+        restore-keys: ${{ runner.os }}-gradle-${{ matrix.version }}
+    
+    - name: Run datagen
+      run: ./gradlew runData
+      continue-on-error: true
+      
+    - name: Remove .cache folder
+      run: rm -rf src/generated/resources/.cache
+    
+    - name: Build with Gradle
+      run: ./gradlew build
+    
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      with:
+        tag_name: ${{ matrix.version }}-${{ env.mod_version }}
+        release_name: NotEnoughKeys ${{ matrix.version }}-${{ env.mod_version }}
+        body: ${{ env.CHANGELOG }}
+        commitish: ${{ matrix.branch }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: AButler/upload-release-assets@v2.0
+      with:
+        files: 'LICENSE;build/libs/*.jar'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{ matrix.version }}-${{ env.mod_version }}
+        
+    - name: Upload to CurseForge
+      uses: itsmeow/curseforge-upload@master
+      with:
+        token: ${{ secrets.CURSEFORGE_TOKEN }}
+        project_id: 314120
+        game_endpoint: minecraft
+        file_path: build/libs/NotEnoughKeys-${{ matrix.version }}-${{ env.mod_version }}.jar
+        changelog: ${{ env.CHANGELOG }}
+        game_versions: Java:Java ${{ matrix.jdk }},Minecraft ${{ matrix.branch }}:${{ matrix.version }},Modloader:Forge
+        release_type: release
+        relations: psi:optionalDependency

@@ -12,6 +12,7 @@
   "key.nekeys.preset_9": "Preset 09",
   "key.nekeys.preset_10": "Preset 10",
   "gui.nekeys.presets": "Presets",
+  "gui.nekeys.extender.tooltip": "Show/Hide preset bar",
   "voiceCommand.EmptyVoiceCommand.name": "Empty",
   "voiceCommand.SimpleVoiceKeybind.name": "Press keybinding for one tick",
   "voiceCommand.ToggleVoiceKeybind.name": "Toggle keybinding",

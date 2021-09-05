@@ -5,6 +5,7 @@ import de.morrien.nekeys.api.command.AbstractVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.voice.popup.ChatPopup;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.List;
 
@@ -26,7 +27,8 @@ public class ChatVoiceCommand extends AbstractVoiceCommand {
     @Override
     public void activate(String voiceCommand) {
         if (chatMessage != null && Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendChatMessage(chatMessage);
+            Minecraft.getInstance().gui.getChat().addRecentChat(chatMessage);
+            Minecraft.getInstance().player.chat(chatMessage);
         }
     }
 

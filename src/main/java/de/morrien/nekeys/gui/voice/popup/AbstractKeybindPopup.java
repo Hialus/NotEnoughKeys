@@ -1,5 +1,6 @@
 package de.morrien.nekeys.gui.voice.popup;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.DropDownList;
 import de.morrien.nekeys.voice.command.AbstractVoiceKeybind;
@@ -28,33 +29,26 @@ public abstract class AbstractKeybindPopup extends AbstractPopup {
 
     protected void init() {
         keyBindingDropDown = new DropDownList<>(0, 0, 0, 18, 6);
-        keyBindingDropDown.stringifier = keyBinding -> I18n.format(keyBinding.getKeyDescription());
-        keyBindingDropDown.optionsList.addAll(Arrays.asList(Minecraft.getInstance().gameSettings.keyBindings));
+        keyBindingDropDown.stringifier = keyBinding -> I18n.get(keyBinding.getName());
+        keyBindingDropDown.optionsList.addAll(Arrays.asList(Minecraft.getInstance().options.keyMappings));
     }
 
     @Override
-    public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         keyBindingDropDown.x = x + 5;
         keyBindingDropDown.y = y + 2;
         keyBindingDropDown.width = width - 10;
-        keyBindingDropDown.draw();
+        keyBindingDropDown.draw(matrixStack);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        //if (!keyBindingDropDown.selection.equals("Select a KeyBinding") && (keyBinding == null || !keyBindingDropDown.selection.equals(keyBinding.getDisplayName()))) {
-        //    for (KeyBinding binding : Minecraft.getInstance().gameSettings.keyBindings) {
-        //        if (keyBindingDropDown.selection.equals(I18n.format(binding.getKeyDescription()))) {
-        //            keyBinding = binding;
-        //            break;
-        //        }
-        //    }
-        //}
         return keyBindingDropDown.mouseClicked(mouseX, mouseY, button);
     }
 
+
     @Override
-    public boolean mouseScrolled(double delta) {
-        return keyBindingDropDown.mouseScrolled(delta);
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+        return keyBindingDropDown.mouseScrolled(pMouseX, pMouseY, pDelta);
     }
 }

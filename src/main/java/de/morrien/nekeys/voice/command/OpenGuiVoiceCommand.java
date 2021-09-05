@@ -5,9 +5,9 @@ import de.morrien.nekeys.api.command.AbstractVoiceCommand;
 import de.morrien.nekeys.gui.voice.GuiVoiceCommand;
 import de.morrien.nekeys.gui.voice.popup.OpenGuiPopup;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiControls;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.gui.screen.ControlsScreen;
+import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 
 import java.util.List;
 
@@ -58,30 +58,30 @@ public class OpenGuiVoiceCommand extends AbstractVoiceCommand {
         MENU("gui.nekeys.mainmenu.name") {
             @Override
             public void openGui() {
-                if (Minecraft.getInstance().world == null) {
-                    Minecraft.getInstance().displayGuiScreen(new GuiMainMenu());
+                if (Minecraft.getInstance().level == null) {
+                    Minecraft.getInstance().setScreen(new MainMenuScreen());
                 } else {
-                    Minecraft.getInstance().displayInGameMenu();
+                    Minecraft.getInstance().pauseGame(false);
                 }
             }
         },
         CONTROLS("gui.nekeys.controls.name") {
             @Override
             public void openGui() {
-                Minecraft.getInstance().displayGuiScreen(new GuiControls(null, Minecraft.getInstance().gameSettings));
+                Minecraft.getInstance().setScreen(new ControlsScreen(null, Minecraft.getInstance().options));
             }
         },
         VOICE_COMMANDS("gui.nekeys.voice_commands.title") {
             @Override
             public void openGui() {
-                Minecraft.getInstance().displayGuiScreen(new GuiVoiceCommand());
+                Minecraft.getInstance().setScreen(new GuiVoiceCommand(Minecraft.getInstance().screen));
             }
         },
         INVENTORY("gui.nekeys.inventory.name") {
             @Override
             public void openGui() {
-                if (Minecraft.getInstance().world != null)
-                    Minecraft.getInstance().displayGuiScreen(new GuiInventory(Minecraft.getInstance().player));
+                if (Minecraft.getInstance().level != null)
+                    Minecraft.getInstance().setScreen(new InventoryScreen(Minecraft.getInstance().player));
             }
         };
 

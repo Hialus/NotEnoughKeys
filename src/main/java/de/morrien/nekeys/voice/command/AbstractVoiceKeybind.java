@@ -24,7 +24,7 @@ public abstract class AbstractVoiceKeybind extends AbstractVoiceCommand {
     @Override
     public List<String> getConfigParams() {
         List<String> params = super.getConfigParams();
-        params.add(keybind == null ? "" : keybind.getKeyDescription());
+        params.add(keybind == null ? "" : keybind.getName());
         return params;
     }
 
@@ -35,8 +35,8 @@ public abstract class AbstractVoiceKeybind extends AbstractVoiceCommand {
     }
 
     protected KeyBinding getKeybindByDescription(String description) {
-        for (KeyBinding keyBinding : Minecraft.getInstance().gameSettings.keyBindings) {
-            if (keyBinding.getKeyDescription().equalsIgnoreCase(description)) {
+        for (KeyBinding keyBinding : Minecraft.getInstance().options.keyMappings) {
+            if (keyBinding.getName().equalsIgnoreCase(description)) {
                 return keyBinding;
             }
         }

@@ -10,9 +10,9 @@ public class CommandOpenVoiceCommandSettings { // TODO
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("voice")
-                .requires(source -> source.hasPermissionLevel(0))
+                .requires(source -> source.hasPermission(0))
                 .executes(context -> {
-                    Minecraft.getInstance().displayGuiScreen(new GuiVoiceCommand());
+                    Minecraft.getInstance().setScreen(new GuiVoiceCommand());
                     return 1;
                 })
         );

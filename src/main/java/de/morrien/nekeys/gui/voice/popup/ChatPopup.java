@@ -1,18 +1,19 @@
 package de.morrien.nekeys.gui.voice.popup;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.voice.command.ChatVoiceCommand;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 /**
  * Created by Timor Morrien
  */
 public class ChatPopup extends AbstractPopup {
-
-    protected GuiTextField chatMessageTextField;
+    protected TextFieldWidget chatMessageTextField;
 
     public ChatPopup(String name, String rule) {
         super(name, rule);
@@ -23,21 +24,21 @@ public class ChatPopup extends AbstractPopup {
         super(voiceCommand);
         init();
         if (voiceCommand.getChatMessage() != null)
-            chatMessageTextField.setText(voiceCommand.getChatMessage());
+            chatMessageTextField.setValue(voiceCommand.getChatMessage());
     }
 
     protected void init() {
-        chatMessageTextField = new GuiTextField(0, Minecraft.getInstance().fontRenderer, 0, 0, 1000, 18);
-        chatMessageTextField.setMaxStringLength(256);
+        chatMessageTextField = new TextFieldWidget(Minecraft.getInstance().font, 0, 0, 1000, 18, StringTextComponent.EMPTY);
+        chatMessageTextField.setMaxLength(256);
     }
 
     @Override
-    public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(Minecraft.getInstance().fontRenderer, I18n.format("gui.nekey.popup.chat"), x + 6, y + 4, 0xFFFFFFFF);
+    public void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+        drawString(matrixStack, Minecraft.getInstance().font, new TranslationTextComponent("gui.nekey.popup.chat"), x + 6, y + 4, 0xFFFFFFFF);
         chatMessageTextField.x = x + 6;
         chatMessageTextField.y = y + 16;
-        chatMessageTextField.width = width - 12;
-        chatMessageTextField.drawTextField(mouseX, mouseY, partialTicks);
+        chatMessageTextField.setWidth(width - 12);
+        chatMessageTextField.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -51,8 +52,8 @@ public class ChatPopup extends AbstractPopup {
     }
 
     @Override
-    public boolean mouseScrolled(double delta) {
-        return chatMessageTextField.mouseScrolled(delta);
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+        return chatMessageTextField.mouseScrolled(pMouseX, pMouseY, pDelta);
     }
 
     @Override
@@ -72,6 +73,6 @@ public class ChatPopup extends AbstractPopup {
 
     @Override
     public IVoiceCommand getCommand() {
-        return new ChatVoiceCommand(name, rule, chatMessageTextField.getText());
+        return new ChatVoiceCommand(name, rule, chatMessageTextField.getValue());
     }
 }

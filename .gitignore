@@ -1,20 +1,18 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Gradle template
-.gradle
-/build/
+# User-specific stuff
+.idea/
 
-# Ignore Gradle GUI config
-gradle-app.setting
+*.iml
+*.ipr
+*.iws
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+# IntelliJ
+out/
+# mpeltonen/sbt-idea plugin
+.idea_modules/
 
-# Cache of project
-.gradletasknamecache
+# JIRA plugin
+atlassian-ide-plugin.xml
 
-# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
-# gradle/wrapper/gradle-wrapper.properties
-### Java template
 # Compiled class file
 *.class
 
@@ -23,9 +21,6 @@ gradle-app.setting
 
 # BlueJ files
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
 
 # Package Files #
 *.jar
@@ -38,70 +33,86 @@ gradle-app.setting
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-### JetBrains template
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
-# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
-# User-specific stuff
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/dictionaries
-.idea/**/shelf
+*~
 
-# Sensitive or high-churn files
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
 
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
+# KDE directory preferences
+.directory
 
-# CMake
-cmake-build-debug/
-cmake-build-release/
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
 
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
 
-# File-based project format
-*.iws
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
 
-# IntelliJ
-out/
+# Icon must end with two \r
+Icon
 
-# mpeltonen/sbt-idea plugin
-.idea_modules/
+# Thumbnails
+._*
 
-# JIRA plugin
-atlassian-ide-plugin.xml
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
-# Cursive Clojure plugin
-.idea/replstate.xml
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
 
-# Editor-based Rest Client
-.idea/httpRequests
+# Dump file
+*.stackdump
 
-.gradle/
-.idea/
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+.gradle
 build/
-gradle/
-libs/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Cache of project
+.gradletasknamecache
+
+**/build/
+
+# Common working directory
 run/
-src/main/resources/assets/nekeys/commands.png
-src/main/resources/assets/nekeys/commands.psd
-src/main/resources/assets/nekeys/logo.psd
-src/main/resources/assets/nekeys/popup.png
-src/main/resources/assets/nekeys/presets.png
-src/test/
-/NotEnoughKeys.iml
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar

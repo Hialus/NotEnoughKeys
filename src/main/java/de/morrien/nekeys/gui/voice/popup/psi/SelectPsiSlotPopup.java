@@ -1,66 +1,74 @@
 package de.morrien.nekeys.gui.voice.popup.psi;
 
-//import de.morrien.nekeys.api.command.IVoiceCommand;
-//import de.morrien.nekeys.api.popup.AbstractPopup;
-//import de.morrien.nekeys.voice.command.psi.SelectPsiSlotVoiceCommand;
-//import net.minecraft.client.Minecraft;
-//import net.minecraft.client.gui.GuiTextField;
-//import net.minecraft.client.resources.I18n;
-//import net.minecraft.util.ResourceLocation;
-//
-///**
-// * Created by Timor Morrien
-// */
-//public class SelectPsiSlotPopup extends AbstractPopup {
-//
-//    protected GuiTextField numberTextField;
-//
-//    public SelectPsiSlotPopup(String name, String rule) {
-//        super(name, rule);
-//        init();
-//    }
-//
-//    public SelectPsiSlotPopup(SelectPsiSlotVoiceCommand voiceCommand) {
-//        super(voiceCommand);
-//        init();
-//        numberTextField.setText(String.valueOf(voiceCommand.getSlot()));
-//    }
-//
-//    protected void init() {
-//        numberTextField = new GuiTextField(0, Minecraft.getInstance().fontRenderer, 0, 0, 1000, 18);
-//        numberTextField.setMaxStringLength(1000);
-//        numberTextField.setValidator(input -> (input != null) && input.matches("\\d*"));
-//        numberTextField.setText("0");
-//    }
-//
-//    @Override
-//    public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-//        drawString(Minecraft.getInstance().fontRenderer, I18n.format("gui.nekey.popup.psi.selectSlot"), x + 6, y + 4, 0xFFFFFFFF);
-//
-//        ResourceLocation rs = new ResourceLocation("nekeys", "textures/gui/psi_circle.png");
-//        Minecraft.getInstance().getTextureManager().bindTexture(rs);
-//        drawModalRectWithCustomSizedTexture(x, y + 30, 0, 0, 70, 70, 70, 70);
-//
-//        numberTextField.x = x + 6;
-//        numberTextField.y = y + 16;
-//        numberTextField.width = width - 12;
-//        numberTextField.drawTextBox();
-//    }
-//
-//    @Override
-//    public boolean onClick(int mouseX, int mouseY) {
-//        if (numberTextField.mouseClicked(mouseX, mouseY, 0)) return true;
-//        return super.onClick(mouseX, mouseY);
-//    }
-//
-//    @Override
-//    public void keyTyped(char typedChar, int keyCode) {
-//        if (!numberTextField.textboxKeyTyped(typedChar, keyCode))
-//            super.keyTyped(typedChar, keyCode);
-//    }
-//
-//    @Override
-//    public IVoiceCommand getCommand() {
-//        return new SelectPsiSlotVoiceCommand(name, rule, Integer.parseInt(numberTextField.getText()));
-//    }
-//}
+import com.mojang.blaze3d.matrix.MatrixStack;
+import de.morrien.nekeys.api.command.IVoiceCommand;
+import de.morrien.nekeys.api.popup.AbstractPopup;
+import de.morrien.nekeys.voice.command.psi.SelectPsiSlotVoiceCommand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+
+/**
+ * Created by Timor Morrien
+ */
+public class SelectPsiSlotPopup extends AbstractPopup {
+    protected TextFieldWidget numberTextField;
+
+    public SelectPsiSlotPopup(String name, String rule) {
+        super(name, rule);
+        init();
+    }
+
+    public SelectPsiSlotPopup(SelectPsiSlotVoiceCommand voiceCommand) {
+        super(voiceCommand);
+        init();
+        numberTextField.setValue(String.valueOf(voiceCommand.getSlot()));
+    }
+
+    protected void init() {
+        numberTextField = new TextFieldWidget(Minecraft.getInstance().font, 0, 0, 1000, 18, StringTextComponent.EMPTY);
+        numberTextField.setMaxLength(2);
+        //numberTextField.setFilter(input -> (input != null) && input.matches("\\d*"));
+        numberTextField.setValue("0");
+    }
+
+    @Override
+    public void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+        drawString(matrixStack, Minecraft.getInstance().font, new TranslationTextComponent("gui.nekey.popup.psi.selectSlot"), x + 6, y + 4, 0xFFFFFFFF);
+
+        ResourceLocation rs = new ResourceLocation("nekeys", "textures/gui/psi_circle.png");
+        Minecraft.getInstance().getTextureManager().bind(rs);
+        blit(matrixStack, x, y + 30, 0, 0, 70, 70, 70, 70);
+
+        numberTextField.x = x + 6;
+        numberTextField.y = y + 16;
+        numberTextField.setWidth(width - 12);
+        numberTextField.render(matrixStack, mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (numberTextField.mouseClicked(mouseX, mouseY, button)) return true;
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        return numberTextField.keyPressed(pKeyCode, pScanCode, pModifiers) ||
+            super.keyPressed(pKeyCode, pScanCode, pModifiers);
+    }
+
+    @Override
+    public boolean charTyped(char pCodePoint, int pModifiers) {
+        return numberTextField.charTyped(pCodePoint, pModifiers) ||
+                super.charTyped(pCodePoint, pModifiers);
+    }
+
+    @Override
+    public IVoiceCommand getCommand() {
+        return new SelectPsiSlotVoiceCommand(name, rule, Integer.parseInt(numberTextField.getValue()));
+    }
+}

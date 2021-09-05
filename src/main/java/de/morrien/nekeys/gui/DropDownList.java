@@ -1,9 +1,9 @@
 package de.morrien.nekeys.gui;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.IGuiEventListener;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +11,7 @@ import java.util.List;
 /**
  * Created by Timor Morrien
  */
-public class DropDownList<E> extends Gui implements IGuiEventListener {
-
+public class DropDownList<E> extends AbstractGui implements IGuiEventListener {
     public final List<E> optionsList;
     public Stringfier<E> stringifier;
     public CellRenderer<E> cellRenderer;
@@ -39,38 +38,39 @@ public class DropDownList<E> extends Gui implements IGuiEventListener {
         this.disabled = false;
     }
 
-    public void draw() {
-        drawRect(x, y, x + width, y + height, disabled ? 0xFFAAAAAA : 0xFFFFFFFF);
-        drawRect(x + 1, y + 1, x + width - 1, y + height - 1, 0xFF000000);
+    public void draw(MatrixStack matrixStack) {
+        fill(matrixStack, x, y, x + width, y + height, disabled ? 0xFFAAAAAA : 0xFFFFFFFF);
+        fill(matrixStack, x + 1, y + 1, x + width - 1, y + height - 1, 0xFF000000);
         if (cellRenderer != null && selection != null) {
             cellRenderer.render(selection, x + 1, y + 2, width - 3, this);
         } else {
-            drawString(Minecraft.getInstance().fontRenderer, selection == null ? "None" : stringifier.toString(selection), x + 5, y + 5, 0xFFFFFF);
+            final String text = selection == null ? "None" : stringifier.toString(selection);
+            drawString(matrixStack, Minecraft.getInstance().font, text, x + 5, y + 5, 0xFFFFFF);
         }
         int buttonHeight = height - 2;
-        drawRect(x + width - buttonHeight - 1, y + 1, x + width - 1, y + 1 + buttonHeight, 0xFF565656);
-        drawRect(x + width - buttonHeight, y + 2, x + width - 2, y + buttonHeight, 0xFF787878);
-        GL11.glPushMatrix();
-        GL11.glTranslated(x + width - buttonHeight + 1, y - 3, 0);
-        GL11.glScaled(3.6, 3, 1);
+        fill(matrixStack, x + width - buttonHeight - 1, y + 1, x + width - 1, y + 1 + buttonHeight, 0xFF565656);
+        fill(matrixStack, x + width - buttonHeight, y + 2, x + width - 2, y + buttonHeight, 0xFF787878);
+        matrixStack.pushPose();
+        matrixStack.translate(x + width - buttonHeight + 2, y + 4, 0);
+        matrixStack.scale(2, 1.6f, 1);
         if (expanded) {
-            drawString(Minecraft.getInstance().fontRenderer, "\u25B2", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
+            Minecraft.getInstance().font.draw(matrixStack, "\u25B2", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
         } else {
-            drawString(Minecraft.getInstance().fontRenderer, "\u25BC", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
+            Minecraft.getInstance().font.draw(matrixStack, "\u25BC", 0, 0, disabled ? 0xA0A0A0 : 0xFFFFFF);
         }
-        GL11.glPopMatrix();
+        matrixStack.popPose();
 
         if (this.expanded) {
-            drawRect(x, y + height, x + width, y + height + expandHeight * cellHeight, 0xFFFFFFFF);
-            drawRect(x + 1, y + height, x + width - 1, y + height + expandHeight * cellHeight - 1, 0xFF000000);
+            fill(matrixStack, x, y + height, x + width, y + height + expandHeight * cellHeight, 0xFFFFFFFF);
+            fill(matrixStack, x + 1, y + height, x + width - 1, y + height + expandHeight * cellHeight - 1, 0xFF000000);
             int offset = 0;
             for (int i = scrollPosition; i < Math.min(optionsList.size(), scrollPosition + expandHeight); i++) {
                 if (cellRenderer != null) {
                     cellRenderer.render(optionsList.get(i), x + 1, y + height + offset * cellHeight, width - 3, this);
                 } else {
-                    drawString(Minecraft.getInstance().fontRenderer, stringifier.toString(optionsList.get(i)), x + 5, y + height + offset * cellHeight + 2, 0xFFFFFF);
+                    drawString(matrixStack, Minecraft.getInstance().font, stringifier.toString(optionsList.get(i)), x + 5, y + height + offset * cellHeight + 2, 0xFFFFFF);
                 }
-                drawHorizontalLine(x, x + width - 1, y + height + offset * cellHeight + cellHeight - 1, 0xFFFFFFFF);
+                hLine(matrixStack, x, x + width - 1, y + height + offset * cellHeight + cellHeight - 1, 0xFFFFFFFF);
                 offset++;
             }
         }
@@ -105,7 +105,7 @@ public class DropDownList<E> extends Gui implements IGuiEventListener {
     }
 
     @Override
-    public boolean mouseScrolled(double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (!expanded) return false;
         if (delta != 0) {
             if (delta > 0)

@@ -4,7 +4,7 @@ import de.morrien.nekeys.NotEnoughKeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.settings.KeyModifier;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class PresetManager {
     public PresetManager() {
         configFile = NotEnoughKeys.instance.configDirectory.resolve("preset.config");
         Preset tmpPreset = new Preset();
-        for (KeyBinding keybinding : Minecraft.getInstance().gameSettings.keyBindings) {
+        for (KeyBinding keybinding : Minecraft.getInstance().options.keyMappings) {
             keybinding.setToDefault();
         }
         DEFAULT_PRESET = new Preset();
@@ -53,7 +53,7 @@ public class PresetManager {
             Preset preset = presets.get(i - 1);
             lines.add(preset == currentPreset ? i + " active" : String.valueOf(i));
             for (KeyBindingInformation keyBindingInformation : preset.keyBindingInformations) {
-                lines.add("- " + keyBindingInformation.keyBindingId + "   " + keyBindingInformation.keyCode.getTranslationKey() + "   " + keyBindingInformation.keyModifier.name());
+                lines.add("- " + keyBindingInformation.keyBindingId + "   " + keyBindingInformation.keyCode.getName() + "   " + keyBindingInformation.keyModifier.name());
             }
         }
         lines.add("End");
@@ -83,7 +83,7 @@ public class PresetManager {
                 if (line.startsWith("- ")) {
                     String[] split = line.split(" {3}");
 
-                    kbis.add(new KeyBindingInformation(split[0].substring(2), InputMappings.getInputByName(split[1]), KeyModifier.valueOf(split[2])));
+                    kbis.add(new KeyBindingInformation(split[0].substring(2), InputMappings.getKey(split[1]), KeyModifier.valueOf(split[2])));
                 } else {
                     if (kbis != null) {
                         Preset p = new Preset(kbis);
@@ -110,7 +110,7 @@ public class PresetManager {
         public KeyModifier keyModifier;
 
         public KeyBindingInformation(KeyBinding keyBinding) {
-            this.keyBindingId = keyBinding.getKeyDescription();
+            this.keyBindingId = keyBinding.getName();
             this.keyCode = keyBinding.getKey();
             this.keyModifier = keyBinding.getKeyModifier();
         }
@@ -135,13 +135,12 @@ public class PresetManager {
         }
     }
 
-    @SuppressWarnings("NoTranslation")
     public class Preset implements Cloneable {
         private List<KeyBindingInformation> keyBindingInformations;
 
         public Preset() {
             keyBindingInformations = new ArrayList<>();
-            for (KeyBinding keyBinding : Minecraft.getInstance().gameSettings.keyBindings) {
+            for (KeyBinding keyBinding : Minecraft.getInstance().options.keyMappings) {
                 keyBindingInformations.add(new KeyBindingInformation(keyBinding));
             }
         }
@@ -153,31 +152,31 @@ public class PresetManager {
         public void load() {
             if (this == currentPreset) {
                 if (Minecraft.getInstance().player != null) {
-                    Minecraft.getInstance().player.sendStatusMessage(new TextComponentTranslation("nekeys.status.preset.alreadyLoaded", presets.indexOf(this) + 1), true);
+                    Minecraft.getInstance().player.displayClientMessage(new TranslationTextComponent("nekeys.status.preset.alreadyLoaded", presets.indexOf(this) + 1), true);
                 }
                 return;
             }
             if (currentPreset != null) currentPreset.update();
-            for (KeyBinding keyBinding : Minecraft.getInstance().gameSettings.keyBindings) {
-                final String keyBindingId = keyBinding.getKeyDescription();
+            for (KeyBinding keyBinding : Minecraft.getInstance().options.keyMappings) {
+                final String keyBindingId = keyBinding.getName();
                 for (KeyBindingInformation keyBindingInformation : keyBindingInformations) {
                     if (keyBindingId.equals(keyBindingInformation.keyBindingId)) {
                         keyBinding.setKeyModifierAndCode(keyBindingInformation.keyModifier, keyBindingInformation.keyCode);
                     }
                 }
             }
-            Minecraft.getInstance().gameSettings.saveOptions();
-            KeyBinding.resetKeyBindingArrayAndHash();
+            Minecraft.getInstance().options.save();
+            KeyBinding.resetMapping();
             currentPreset = this;
             if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.sendStatusMessage(new TextComponentTranslation("nekeys.status.preset.change", presets.indexOf(this) + 1), true);
+                Minecraft.getInstance().player.displayClientMessage(new TranslationTextComponent("nekeys.status.preset.change", presets.indexOf(this) + 1), true);
             }
         }
 
         public void update() {
             if (currentPreset != this) return;
             keyBindingInformations = new ArrayList<>();
-            for (KeyBinding keyBinding : Minecraft.getInstance().gameSettings.keyBindings) {
+            for (KeyBinding keyBinding : Minecraft.getInstance().options.keyMappings) {
                 keyBindingInformations.add(new KeyBindingInformation(keyBinding));
             }
             try {
@@ -189,11 +188,11 @@ public class PresetManager {
         }
 
         public boolean isComplete() {
-            if (Minecraft.getInstance().gameSettings.keyBindings.length != keyBindingInformations.size()) return false;
-            for (KeyBinding keyBinding : Minecraft.getInstance().gameSettings.keyBindings) {
+            if (Minecraft.getInstance().options.keyMappings.length != keyBindingInformations.size()) return false;
+            for (KeyBinding keyBinding : Minecraft.getInstance().options.keyMappings) {
                 boolean found = false;
                 for (KeyBindingInformation keyBindingInformation : keyBindingInformations) {
-                    if (keyBinding.getKeyDescription().equals(keyBindingInformation.keyBindingId)) {
+                    if (keyBinding.getName().equals(keyBindingInformation.keyBindingId)) {
                         found = true;
                         break;
                     }
@@ -205,12 +204,12 @@ public class PresetManager {
 
         public void repair() {
             if (isComplete()) return;
-            KeyBinding[] keyBindings = Minecraft.getInstance().gameSettings.keyBindings;
+            KeyBinding[] keyBindings = Minecraft.getInstance().options.keyMappings;
             for (int i = 0; i < keyBindings.length; i++) {
                 KeyBinding keyBinding = keyBindings[i];
                 boolean found = false;
                 for (KeyBindingInformation keyBindingInformation : keyBindingInformations) {
-                    if (keyBinding.getKeyDescription().equals(keyBindingInformation.keyBindingId)) {
+                    if (keyBinding.getName().equals(keyBindingInformation.keyBindingId)) {
                         found = true;
                         break;
                     }

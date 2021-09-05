@@ -23,8 +23,8 @@ public class SimpleVoiceKeybind extends AbstractVoiceKeybind implements IVoiceCo
     @Override
     public void activate(String voiceCommand) {
         if (keybind == null) return;
-        KeyBinding.onTick(keybind.getKey());
-        KeyBinding.setKeyBindState(keybind.getKey(), true);
+        KeyBinding.click(keybind.getKey());
+        KeyBinding.set(keybind.getKey(), true);
         ticksLeft = 1;
     }
 
@@ -33,7 +33,7 @@ public class SimpleVoiceKeybind extends AbstractVoiceKeybind implements IVoiceCo
         if (keybind != null && ticksLeft >= 0) {
             ticksLeft--;
             if (ticksLeft == 0) {
-                KeyBinding.setKeyBindState(keybind.getKey(), false);
+                KeyBinding.set(keybind.getKey(), false);
             }
         }
     }
