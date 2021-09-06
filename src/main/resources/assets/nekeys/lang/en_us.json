@@ -38,11 +38,11 @@
   "gui.nekey.popup.thaumcraft.selectFocus": "Select a focus from your inventory",
   "gui.nekey.popup.thaumcraft.unavailable": "These settings are only available while in a world",
   "gui.nekey.popup.selectPreset": "Select a preset",
-  "gui.nekeys.mainmenu": "Open Main Menu",
-  "gui.nekeys.controls": "Open Controls",
-  "gui.nekeys.inventory": "Open Inventory",
+  "gui.nekeys.popup.gui.voice_commands.name": "Open Voice Commands",
+  "gui.nekeys.popup.gui.main_menu.name": "Open Main Menu",
+  "gui.nekeys.popup.gui.controls.name": "Open Controls",
+  "gui.nekeys.popup.gui.inventory.name": "Open Inventory",
   "nekeys.status.psi.invalidSlot": "Slot can't be selected",
-  "nekeys.status.thaumcraft.fociNotFound": "Could not find the specified foci",
   "nekeys.status.preset.change": "§6Changed to preset %s",
   "nekeys.status.preset.alreadyLoaded": "§cPreset %s §cis already loaded"
 }

@@ -55,7 +55,13 @@ public class OpenGuiVoiceCommand extends AbstractVoiceCommand {
     }
 
     public enum AllowedGuis {
-        MENU("gui.nekeys.mainmenu.name") {
+        VOICE_COMMANDS("gui.nekeys.popup.gui.voice_commands.name") {
+            @Override
+            public void openGui() {
+                Minecraft.getInstance().setScreen(new GuiVoiceCommand(Minecraft.getInstance().screen));
+            }
+        },
+        MENU("gui.nekeys.popup.gui.main_menu.name") {
             @Override
             public void openGui() {
                 if (Minecraft.getInstance().level == null) {
@@ -65,19 +71,13 @@ public class OpenGuiVoiceCommand extends AbstractVoiceCommand {
                 }
             }
         },
-        CONTROLS("gui.nekeys.controls.name") {
+        CONTROLS("gui.nekeys.popup.gui.controls.name") {
             @Override
             public void openGui() {
                 Minecraft.getInstance().setScreen(new ControlsScreen(null, Minecraft.getInstance().options));
             }
         },
-        VOICE_COMMANDS("gui.nekeys.voice_commands.title") {
-            @Override
-            public void openGui() {
-                Minecraft.getInstance().setScreen(new GuiVoiceCommand(Minecraft.getInstance().screen));
-            }
-        },
-        INVENTORY("gui.nekeys.inventory.name") {
+        INVENTORY("gui.nekeys.popup.gui.inventory.name") {
             @Override
             public void openGui() {
                 if (Minecraft.getInstance().level != null)
