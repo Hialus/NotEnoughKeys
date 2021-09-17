@@ -6,7 +6,7 @@ issueTrackerURL="https://github.com/Hialus/NotEnoughKeys/issues" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
 displayURL="https://minecraft.curseforge.com/projects/nekeys" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="nekeys/logo.png" #optional
+logoFile= "nekeys_logo.png" #optional
 # A text field displayed in the mod UI
 credits="The Sphinx4 Team for their awesome speech recognition system" #optional
 # A text field displayed in the mod UI
