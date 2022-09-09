@@ -1,27 +1,27 @@
 package de.morrien.nekeys.gui.voice;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import de.morrien.nekeys.NotEnoughKeys;
 import de.morrien.nekeys.Reference;
 import de.morrien.nekeys.api.command.IVoiceCommand;
-import de.morrien.nekeys.gui.BetterButton;
+import de.morrien.nekeys.gui.ScaleableButton;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.list.AbstractOptionList.Entry;
-import net.minecraft.client.gui.widget.list.ExtendedList;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,18 +30,18 @@ import java.util.Map;
  * Created by Timor Morrien
  */
 @OnlyIn(Dist.CLIENT)
-public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.CommandEntry> {
-
+public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCommandList.CommandEntry> implements GuiEventListener {
     private final GuiVoiceCommand gui;
     private final Minecraft mc;
     public IAction activeAction;
-    //List<CommandEntry> listEntries;
-    private TextFieldWidget activeTextField;
+    private EditBox activeTextField;
 
     public GuiVoiceCommandList(GuiVoiceCommand gui, Minecraft mcIn) {
         super(mcIn, gui.width, gui.height, 35, gui.height - 62, 25);
         this.gui = gui;
         this.mc = mcIn;
+        this.setRenderBackground(false);
+        this.setRenderTopAndBottom(false);
 
         loadCommands();
     }
@@ -103,12 +103,6 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
         return false;
     }
 
-    // TODO
-    //public void update() {
-    //    if (activeTextField != null)
-    //        activeTextField.updateCursorCounter();
-    //}
-
     CommandEntry newEntry(IVoiceCommand command) {
         return new CommandEntry(command);
     }
@@ -124,36 +118,65 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
     }
 
     @Override
-    protected void renderBackground(MatrixStack matrixStack) {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuilder();
-        this.mc.getTextureManager().bind(new ResourceLocation("textures/block/jungle_planks.png"));
-        GlStateManager._color4f(1F, 1F, 1F, 1F);
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+    protected void renderBackground(PoseStack matrixStack) {
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, new ResourceLocation("textures/block/jungle_planks.png"));
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        // TODO: Was 7
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         bufferbuilder.vertex(0, this.height, 0).uv(0, this.height / 32F).color(150, 150, 150, 255).endVertex();
         bufferbuilder.vertex(this.width, this.height, 0).uv(this.width / 32F, this.height / 32F).color(150, 150, 150, 255).endVertex();
         bufferbuilder.vertex(this.width, 0, 0).uv(this.width / 32F, 0).color(150, 150, 150, 255).endVertex();
         bufferbuilder.vertex(0, 0, 0).uv(0, 0).color(150, 150, 150, 255).endVertex();
-        tessellator.end();
+        tesselator.end();
+    }
+
+    @Override
+    protected void renderList(PoseStack pPoseStack, int pX, int pY, int pMouseX, int pMouseY, float pPartialTick) {
+        super.renderList(pPoseStack, pX, pY, pMouseX, pMouseY, pPartialTick);
+        this.renderTopAndBottom();
+    }
+
+    private void renderTopAndBottom() {
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, new ResourceLocation("textures/block/spruce_planks.png"));
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(519);
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.vertex(this.x0, this.y0, -100.0D).uv(0.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferbuilder.vertex(this.x0 + this.width, this.y0, -100.0D).uv((float) this.width / 32.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferbuilder.vertex(this.x0 + this.width, 0.0D, -100.0D).uv((float) this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+        bufferbuilder.vertex(this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+        bufferbuilder.vertex(this.x0, this.height, -100.0D).uv(0.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferbuilder.vertex(this.x0 + this.width, this.height, -100.0D).uv((float) this.width / 32.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferbuilder.vertex(this.x0 + this.width, this.y1, -100.0D).uv((float) this.width / 32.0F, (float) this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferbuilder.vertex(this.x0, this.y1, -100.0D).uv(0.0F, (float) this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+        tesselator.end();
+        RenderSystem.depthFunc(515);
+        RenderSystem.disableDepthTest();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+        RenderSystem.disableTexture();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        bufferbuilder.vertex(this.x0, this.y0 + 4, 0.0D).color(0, 0, 0, 0).endVertex();
+        bufferbuilder.vertex(this.x1, this.y0 + 4, 0.0D).color(0, 0, 0, 0).endVertex();
+        bufferbuilder.vertex(this.x1, this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+        bufferbuilder.vertex(this.x0, this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+        bufferbuilder.vertex(this.x0, this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+        bufferbuilder.vertex(this.x1, this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+        bufferbuilder.vertex(this.x1, this.y1 - 4, 0.0D).color(0, 0, 0, 0).endVertex();
+        bufferbuilder.vertex(this.x0, this.y1 - 4, 0.0D).color(0, 0, 0, 0).endVertex();
+        tesselator.end();
     }
 
     private List<CommandEntry> rows() {
         return this.children();
     }
-
-    //@Override
-    //protected void overlayBackground(int startY, int endY, int startAlpha, int endAlpha) {
-    //    Tessellator tessellator = Tessellator.getInstance();
-    //    BufferBuilder bufferbuilder = tessellator.getBuilder();
-    //    this.mc.getTextureManager().bind(new ResourceLocation("textures/block/dark_oak_planks.png"));
-    //    GlStateManager._color4f(1F, 1F, 1F, 1F);
-    //    bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-    //    bufferbuilder.vertex(this.getLeft(), endY, 0).uv(0, endY / 32F).color(255, 255, 255, endAlpha).endVertex();
-    //    bufferbuilder.vertex(this.getLeft() + this.width, endY, 0).uv(this.width / 32F, endY / 32F).color(255, 255, 255, endAlpha).endVertex();
-    //    bufferbuilder.vertex(this.getLeft() + this.width, startY, 0).uv(this.width / 32F, startY / 32F).color(255, 255, 255, startAlpha).endVertex();
-    //    bufferbuilder.vertex(this.getLeft(), startY, 0).uv(0, startY / 32F).color(255, 255, 255, startAlpha).endVertex();
-    //    tessellator.end();
-    //}
 
     /**
      * A list @see{GuiListExtended.IGuiListEntry} to display a VoiceCommand
@@ -162,23 +185,25 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
     public class CommandEntry extends Entry<CommandEntry> {
         private final Button btnDelete;
         private final Button btnEdit;
-        private final BetterButton upButton;
-        private final BetterButton downButton;
-        private final TextFieldWidget nameTextField;
-        private final TextFieldWidget ruleTextField;
+        private final ScaleableButton upButton;
+        private final ScaleableButton downButton;
+        private final EditBox nameTextField;
+        private final EditBox ruleTextField;
         private final ResourceLocation settingsIcon = new ResourceLocation(Reference.MODID, "textures/gui/settings.png");
         private IVoiceCommand command;
 
         private CommandEntry(IVoiceCommand command) {
             this.command = command;
-            this.btnDelete = new BetterButton(0, 0, 50, 20, new TranslationTextComponent("selectServer.delete"), this::deleteAction);
-            this.btnEdit = new BetterButton(0, 0, 20, 20, new StringTextComponent("E"), this::editAction);
-            this.upButton = new BetterButton(0, 0, 10, 10, new StringTextComponent("\u25B2"), this::moveUpAction);
-            this.downButton = new BetterButton(0, 0, 10, 10, new StringTextComponent("\u25BC"), this::moveDownAction);
+            this.btnDelete = new ScaleableButton(0, 0, 50, 20, new TranslatableComponent("selectServer.delete"), this::deleteAction);
+            this.btnEdit = new ScaleableButton(0, 0, 20, 20, new TextComponent("E"), this::editAction, (button, matrixStack, mouseX, mouseY) -> {
+                gui.renderTooltip(matrixStack, Minecraft.getInstance().font.split(new TranslatableComponent("gui.nekeys.voice_commands.settings"), Math.max(gui.width / 2 - 43, 170)), mouseX, mouseY + 10);
+            });
+            this.upButton = new ScaleableButton(0, 0, 10, 10, new TextComponent("\u25B2"), this::moveUpAction);
+            this.downButton = new ScaleableButton(0, 0, 10, 10, new TextComponent("\u25BC"), this::moveDownAction);
 
-            this.nameTextField = new TextFieldWidget(Minecraft.getInstance().font, 0, 0, 40, 18, StringTextComponent.EMPTY);
+            this.nameTextField = new EditBox(Minecraft.getInstance().font, 0, 0, 40, 18, TextComponent.EMPTY);
             this.nameTextField.setValue(command.getName());
-            this.ruleTextField = new TextFieldWidget(Minecraft.getInstance().font, 0, 0, 200, 18, StringTextComponent.EMPTY);
+            this.ruleTextField = new EditBox(Minecraft.getInstance().font, 0, 0, 200, 18, TextComponent.EMPTY);
             this.ruleTextField.setMaxLength(Integer.MAX_VALUE);
             this.ruleTextField.setValue(command.getRuleContent());
             checkValid(ruleTextField.getValue());
@@ -186,7 +211,7 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
         }
 
         @Override
-        public List<? extends IGuiEventListener> children() {
+        public List<? extends GuiEventListener> children() {
             return ImmutableList.of(btnDelete, btnEdit, upButton, downButton, nameTextField, ruleTextField);
         }
 
@@ -219,7 +244,7 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
         }
 
         @Override
-        public void render(MatrixStack matrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
+        public void render(PoseStack matrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
             command.setName(nameTextField.getValue());
             if (!ruleTextField.getValue().equals(command.getRuleContent())) {
                 String text = ruleTextField.getValue();
@@ -227,9 +252,6 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
                 command.setRuleContent(ruleTextField.getValue());
             }
             checkName();
-
-            GlStateManager._disableRescaleNormal();
-            GlStateManager._disableLighting();
             GlStateManager._disableDepthTest();
             int x = gui.width / 2 - 340 / 2;
             int y = pTop;
@@ -245,8 +267,8 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
             this.btnEdit.x = x + 256;
             this.btnEdit.y = y;
             this.btnEdit.render(matrixStack, pMouseX, pMouseY, pPartialTicks);
-            Minecraft.getInstance().getTextureManager().bind(settingsIcon);
-            GlStateManager._color4f(1, 1, 1, 1);
+            RenderSystem.setShaderTexture(0, settingsIcon);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             blit(matrixStack, x + 258, posY - 4, 0, 0, 16, 15, 16, 16);
 
             this.upButton.x = x + 278;
@@ -266,10 +288,7 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
             }
 
             if (btnEdit.isMouseOver(pMouseX, pMouseY)) {
-                //gui.drawHoveringText(I18n.format("gui.nekeys.voice_commands.settings"), x + 268, y + 18);
-                // This is needed to prevent graphical bugs
-                GlStateManager._disableRescaleNormal();
-                GlStateManager._disableLighting();
+                btnEdit.renderToolTip(matrixStack, pMouseX, pMouseY);
                 GlStateManager._disableDepthTest();
             }
         }
@@ -363,23 +382,18 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
                 int index = rows().indexOf(this);
                 if (index != 0) {
                     rows().remove(this);
-                    rows().add(index - 1, this);
+                    rows().add(index, this);
                 }
             } else if (this.downButton.mouseClicked(mouseX, mouseY, button)) {
                 int index = rows().indexOf(this);
                 if (index != rows().size() - 1) {
                     rows().remove(this);
-                    rows().add(index + 1, this);
+                    rows().add(index, this);
                 }
             }
             activeTextField = null;
             return false;
         }
-
-        //@Override
-        //public boolean mouseReleased(double x, double y, int button) {
-        //    return this.btnChangeKeyBinding.mouseReleased(x, y, button);// || this.btnDelete.mouseReleased(x, y, button);
-        //}
 
         public GuiVoiceCommandList getList() {
             return GuiVoiceCommandList.this;
@@ -391,6 +405,11 @@ public class GuiVoiceCommandList extends ExtendedList<GuiVoiceCommandList.Comman
 
         public void setCommand(IVoiceCommand command) {
             this.command = command;
+        }
+
+        @Override
+        public List<? extends NarratableEntry> narratables() {
+            return Collections.emptyList();
         }
     }
 }

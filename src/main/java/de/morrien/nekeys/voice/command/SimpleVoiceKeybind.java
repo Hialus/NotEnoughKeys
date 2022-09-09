@@ -4,7 +4,7 @@ import de.morrien.nekeys.api.VoiceCommandFactory;
 import de.morrien.nekeys.api.command.IVoiceCommandTickable;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.voice.popup.SimpleKeybindPopup;
-import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.KeyMapping;
 
 /**
  * Created by Timor Morrien
@@ -16,15 +16,15 @@ public class SimpleVoiceKeybind extends AbstractVoiceKeybind implements IVoiceCo
     private SimpleVoiceKeybind() {
     }
 
-    public SimpleVoiceKeybind(String name, String command, KeyBinding keybind) {
+    public SimpleVoiceKeybind(String name, String command, KeyMapping keybind) {
         super(name, command, keybind);
     }
 
     @Override
     public void activate(String voiceCommand) {
         if (keybind == null) return;
-        KeyBinding.click(keybind.getKey());
-        KeyBinding.set(keybind.getKey(), true);
+        KeyMapping.click(keybind.getKey());
+        KeyMapping.set(keybind.getKey(), true);
         ticksLeft = 1;
     }
 
@@ -33,7 +33,7 @@ public class SimpleVoiceKeybind extends AbstractVoiceKeybind implements IVoiceCo
         if (keybind != null && ticksLeft >= 0) {
             ticksLeft--;
             if (ticksLeft == 0) {
-                KeyBinding.set(keybind.getKey(), false);
+                KeyMapping.set(keybind.getKey(), false);
             }
         }
     }

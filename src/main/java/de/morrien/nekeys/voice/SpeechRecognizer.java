@@ -19,6 +19,9 @@ import java.util.LinkedList;
 
 import static de.morrien.nekeys.NotEnoughKeys.logger;
 
+/**
+ * Created by Timor Morrien
+ */
 public class SpeechRecognizer implements Runnable {
 
     boolean recording = false;
@@ -35,7 +38,7 @@ public class SpeechRecognizer implements Runnable {
 
     public SpeechRecognizer() {
         try {
-            URL configURL = new URL("modjar://nekeys/assets/nekeys/voice/config.xml");
+            URL configURL = getClass().getClassLoader().getResource("assets/nekeys/voice/config.xml");
             cm = new ConfigurationManager(configURL);
 
             recognizer = cm.lookup("recognizer");
@@ -47,11 +50,9 @@ public class SpeechRecognizer implements Runnable {
 
             recognizedStringQueue = new LinkedList<>();
         } catch (IOException e) {
-            logger.error("Cannot load speech recognizer: ");
-            logger.error(e.toString());
+            logger.error("Cannot load speech recognizer", e);
         } catch (PropertyException e) {
-            logger.error("Cannot configure speech recognizer: ");
-            logger.error(e.toString());
+            logger.error("Cannot configure speech recognizer", e);
         }
     }
 
@@ -182,7 +183,6 @@ public class SpeechRecognizer implements Runnable {
             if (!success) {
                 logger.warn("Cannot initialize microphone. " +
                         "Speech recognition disabled.");
-                return;
             } else {
                 if (null != recognitionThread) {
                     logger.warn("New recognition thread being "

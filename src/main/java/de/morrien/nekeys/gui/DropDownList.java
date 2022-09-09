@@ -1,9 +1,10 @@
 package de.morrien.nekeys.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Created by Timor Morrien
  */
-public class DropDownList<E> extends AbstractGui implements IGuiEventListener {
+public class DropDownList<E> extends AbstractWidget {
     public final List<E> optionsList;
     public Stringfier<E> stringifier;
     public CellRenderer<E> cellRenderer;
@@ -27,6 +28,7 @@ public class DropDownList<E> extends AbstractGui implements IGuiEventListener {
     public boolean disabled;
 
     public DropDownList(int x, int y, int width, int height, int expandHeight) {
+        super(x, y, width, height, TextComponent.EMPTY);
         this.x = x;
         this.y = y;
         this.width = width;
@@ -38,7 +40,7 @@ public class DropDownList<E> extends AbstractGui implements IGuiEventListener {
         this.disabled = false;
     }
 
-    public void draw(MatrixStack matrixStack) {
+    public void draw(PoseStack matrixStack) {
         fill(matrixStack, x, y, x + width, y + height, disabled ? 0xFFAAAAAA : 0xFFFFFFFF);
         fill(matrixStack, x + 1, y + 1, x + width - 1, y + height - 1, 0xFF000000);
         if (cellRenderer != null && selection != null) {
@@ -120,6 +122,11 @@ public class DropDownList<E> extends AbstractGui implements IGuiEventListener {
         if (scrollPosition < 0) scrollPosition = 0;
 
         return true;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+
     }
 
     public interface Stringfier<E> {

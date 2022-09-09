@@ -1,10 +1,13 @@
 package de.morrien.nekeys.gui.voice.popup;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.voice.command.EmptyVoiceCommand;
 
+/**
+ * Created by Timor Morrien
+ */
 public class EmptyPopup extends AbstractPopup {
 
     public EmptyPopup(String name, String rule) {
@@ -16,7 +19,7 @@ public class EmptyPopup extends AbstractPopup {
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
 
     }
 

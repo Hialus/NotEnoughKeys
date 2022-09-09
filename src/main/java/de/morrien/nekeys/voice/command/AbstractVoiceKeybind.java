@@ -1,8 +1,8 @@
 package de.morrien.nekeys.voice.command;
 
 import de.morrien.nekeys.api.command.AbstractVoiceCommand;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
 
 import java.util.List;
 
@@ -11,12 +11,12 @@ import java.util.List;
  */
 public abstract class AbstractVoiceKeybind extends AbstractVoiceCommand {
 
-    protected KeyBinding keybind;
+    protected KeyMapping keybind;
 
     protected AbstractVoiceKeybind() {
     }
 
-    public AbstractVoiceKeybind(String name, String command, KeyBinding keybind) {
+    public AbstractVoiceKeybind(String name, String command, KeyMapping keybind) {
         super(name, command);
         this.keybind = keybind;
     }
@@ -34,8 +34,8 @@ public abstract class AbstractVoiceKeybind extends AbstractVoiceCommand {
         this.keybind = getKeybindByDescription(params[3]);
     }
 
-    protected KeyBinding getKeybindByDescription(String description) {
-        for (KeyBinding keyBinding : Minecraft.getInstance().options.keyMappings) {
+    protected KeyMapping getKeybindByDescription(String description) {
+        for (KeyMapping keyBinding : Minecraft.getInstance().options.keyMappings) {
             if (keyBinding.getName().equalsIgnoreCase(description)) {
                 return keyBinding;
             }
@@ -43,11 +43,11 @@ public abstract class AbstractVoiceKeybind extends AbstractVoiceCommand {
         return null;
     }
 
-    public KeyBinding getKeybind() {
+    public KeyMapping getKeybind() {
         return keybind;
     }
 
-    public void setKeybind(KeyBinding keybind) {
+    public void setKeybind(KeyMapping keybind) {
         this.keybind = keybind;
     }
 }

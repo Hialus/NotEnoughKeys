@@ -1,13 +1,13 @@
 package de.morrien.nekeys.gui.voice.popup;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.DropDownList;
 import de.morrien.nekeys.voice.command.OpenGuiVoiceCommand;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class OpenGuiPopup extends AbstractPopup {
     public OpenGuiPopup(OpenGuiVoiceCommand voiceCommand) {
         super(voiceCommand);
         init();
-        guiDropDown.selection = voiceCommand.getGui();
+        guiDropDown.selection = voiceCommand.getScreen();
     }
 
     protected void init() {
@@ -41,8 +41,8 @@ public class OpenGuiPopup extends AbstractPopup {
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(matrixStack, Minecraft.getInstance().font, new TranslationTextComponent("gui.nekey.popup.selectPreset"), x + 6, y + 4, 0xFFFFFFFF);
+    public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+        drawString(matrixStack, Minecraft.getInstance().font, new TranslatableComponent("gui.nekey.popup.selectPreset"), x + 6, y + 4, 0xFFFFFFFF);
 
         guiDropDown.x = x + 5;
         guiDropDown.y = y + 16;

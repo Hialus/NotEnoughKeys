@@ -5,7 +5,6 @@ import de.morrien.nekeys.api.command.AbstractVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.voice.popup.ChatPopup;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.StringTextComponent;
 
 import java.util.List;
 

@@ -1,19 +1,19 @@
 package de.morrien.nekeys.gui.voice.popup;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.voice.command.ChatVoiceCommand;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 /**
  * Created by Timor Morrien
  */
 public class ChatPopup extends AbstractPopup {
-    protected TextFieldWidget chatMessageTextField;
+    protected EditBox chatMessageTextField;
 
     public ChatPopup(String name, String rule) {
         super(name, rule);
@@ -28,13 +28,13 @@ public class ChatPopup extends AbstractPopup {
     }
 
     protected void init() {
-        chatMessageTextField = new TextFieldWidget(Minecraft.getInstance().font, 0, 0, 1000, 18, StringTextComponent.EMPTY);
+        chatMessageTextField = new EditBox(Minecraft.getInstance().font, 0, 0, 1000, 18, TextComponent.EMPTY);
         chatMessageTextField.setMaxLength(256);
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(matrixStack, Minecraft.getInstance().font, new TranslationTextComponent("gui.nekey.popup.chat"), x + 6, y + 4, 0xFFFFFFFF);
+    public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+        drawString(matrixStack, Minecraft.getInstance().font, new TranslatableComponent("gui.nekey.popup.chat"), x + 6, y + 4, 0xFFFFFFFF);
         chatMessageTextField.x = x + 6;
         chatMessageTextField.y = y + 16;
         chatMessageTextField.setWidth(width - 12);

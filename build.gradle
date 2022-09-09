@@ -15,16 +15,17 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply from: "https://moddingtutorials.org/applesilicon.gradle"
 
-version = "${minecraft_version}-${mod_version}"
+version = "${mc_version}-${mod_version}"
 group = 'de.morrien.nekeys'
 archivesBaseName = 'NotEnoughKeys'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    //mappings channel: 'official', version: minecraft_version
-    mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
+    //mappings channel: 'official', version: mc_version
+    mappings channel: 'parchment', version: "${parchment_version}-${mc_version}"
     //makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -87,6 +88,12 @@ repositories {
         url = "https://oss.sonatype.org/content/repositories/snapshots"
     }
     maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
         name = "Jitpack"
         url = "https://jitpack.io"
     }
@@ -97,20 +104,27 @@ configurations {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.4-53.1")
-    implementation fg.deobf("vazkii.psi:Psi:1.16-95.413")
-    implementation group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
-    implementation group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+
+    /* Sphinx4 dependencies */
+    minecraftLibrary group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
+    minecraftLibrary group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
     include group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
     include group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
+
+    /* Other mods */
+    // Psi
+    // runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.4-53.1")
+    // implementation fg.deobf("vazkii.psi:Psi:1.16-95.413")
+    // Latest 1.18 version of Controlling
+    // runtimeOnly fg.deobf('curse.maven:Controlling-250398:3950209')
 }
 
 task replaceResources(type: Copy) {
     outputs.upToDateWhen { false }
     from(sourceSets.main.resources) {
         include "META-INF/mods.toml"
-        expand "version": mod_version, "mc_version": minecraft_version, "loader_version": loader_version
+        expand "version": mod_version, "mc_version": mc_version, "loader_version": loader_version
     }
     into "$buildDir/resources/main/"
 }
@@ -124,6 +138,7 @@ processResources {
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     from('LICENSE')
+    from('SPHINX.LICENSE')
 
     manifest {
         attributes([

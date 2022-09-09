@@ -5,9 +5,9 @@ import de.morrien.nekeys.api.command.AbstractVoiceCommand;
 import de.morrien.nekeys.gui.voice.GuiVoiceCommand;
 import de.morrien.nekeys.gui.voice.popup.OpenGuiPopup;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.ControlsScreen;
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.gui.screen.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.controls.ControlsScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class OpenGuiVoiceCommand extends AbstractVoiceCommand {
         this.gui = AllowedGuis.valueOf(params[3]);
     }
 
-    public AllowedGuis getGui() {
+    public AllowedGuis getScreen() {
         return gui;
     }
 
@@ -65,7 +65,7 @@ public class OpenGuiVoiceCommand extends AbstractVoiceCommand {
             @Override
             public void openGui() {
                 if (Minecraft.getInstance().level == null) {
-                    Minecraft.getInstance().setScreen(new MainMenuScreen());
+                    Minecraft.getInstance().setScreen(new TitleScreen());
                 } else {
                     Minecraft.getInstance().pauseGame(false);
                 }

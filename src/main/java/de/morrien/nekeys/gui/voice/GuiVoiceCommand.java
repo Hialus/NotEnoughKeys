@@ -1,27 +1,27 @@
 package de.morrien.nekeys.gui.voice;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import de.morrien.nekeys.NotEnoughKeys;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
-import de.morrien.nekeys.gui.BetterButton;
 import de.morrien.nekeys.gui.DropDownList;
+import de.morrien.nekeys.gui.ScaleableButton;
 import de.morrien.nekeys.voice.command.EmptyVoiceCommand;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.awt.*;
+import java.util.List;
 
 /**
  * Created by Timor Morrien
@@ -38,7 +38,7 @@ public class GuiVoiceCommand extends Screen {
     }
 
     public GuiVoiceCommand(Screen screen) {
-        super(new TranslationTextComponent("gui.nekeys.voice_commands.title"));
+        super(new TranslatableComponent("gui.nekeys.voice_commands.title"));
         if (screen instanceof GuiVoiceCommand)
             screen = null;
         this.parentScreen = screen;
@@ -52,25 +52,30 @@ public class GuiVoiceCommand extends Screen {
         }
     }
 
+    @Override
+    public void renderBackground(PoseStack pPoseStack) {
+
+    }
+
     /**
      * Init the GUI components
      */
     @Override
     public void init() {
         this.voiceCommandList = new GuiVoiceCommandList(this, this.minecraft);
-        this.children.add(this.voiceCommandList);
-        addButton(new BetterButton(this.width / 2 - 165, this.height - 29, 150, 20, new TranslationTextComponent("gui.done"), button -> {
+        ((List<GuiEventListener>) this.children()).add(this.voiceCommandList);
+        addRenderableWidget(new ScaleableButton(this.width / 2 - 165, this.height - 29, 150, 20, new TranslatableComponent("gui.done"), button -> {
             voiceCommandList.save();
             minecraft.setScreen(parentScreen);
         }));
-        addButton(new BetterButton(this.width / 2 + 15, this.height - 29, 150, 20, new TranslationTextComponent("gui.nekeys.reload"), button -> {
+        addRenderableWidget(new ScaleableButton(this.width / 2 + 15, this.height - 29, 150, 20, new TranslatableComponent("gui.nekeys.reload"), button -> {
             NotEnoughKeys.instance.voiceHandler.reloadConfig();
             voiceCommandList.loadCommands();
         }));
-        addButton(new BetterButton(this.width / 2 - 165, this.height - 54, 150, 20, new TranslationTextComponent("gui.nekeys.createNew"), button -> {
+        addRenderableWidget(new ScaleableButton(this.width / 2 - 165, this.height - 54, 150, 20, new TranslatableComponent("gui.nekeys.createNew"), button -> {
             voiceCommandList.children().add(voiceCommandList.newEntry(new EmptyVoiceCommand("empty", "")));
         }));
-        addButton(new BetterButton(this.width / 2 + 15, this.height - 54, 150, 20, new TranslationTextComponent("gui.nekeys.clone"), button -> {
+        addRenderableWidget(new ScaleableButton(this.width / 2 + 15, this.height - 54, 150, 20, new TranslatableComponent("gui.nekeys.clone"), button -> {
             voiceCommandList.activeAction = commandEntry -> {
                 int index = voiceCommandList.children().indexOf(commandEntry);
                 IVoiceCommand command = NotEnoughKeys.instance.voiceHandler.factoryMap.newVoiceCommand(commandEntry.getCommand());
@@ -154,7 +159,7 @@ public class GuiVoiceCommand extends Screen {
      * Draws the screen and all the components in it.
      */
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         int mX = mouseX;
         int mY = mouseY;
         if (activeSettings != null) {
@@ -165,20 +170,19 @@ public class GuiVoiceCommand extends Screen {
         this.voiceCommandList.render(matrixStack, mX, mouseY, partialTicks);
         drawCenteredString(matrixStack, this.font, this.title, this.width / 2, 8, 16777215);
         int x = width / 2 - 340 / 2;
-        drawCenteredString(matrixStack, this.font, new TranslationTextComponent("gui.nekeys.voice_commands.name"), (int) x + 20, 25, Color.ORANGE.getRGB());
-        drawString(matrixStack, this.font, new TranslationTextComponent("gui.nekeys.voice_commands.rule"), (int) x + 60, 25, Color.ORANGE.getRGB());
+        drawCenteredString(matrixStack, this.font, new TranslatableComponent("gui.nekeys.voice_commands.name"), x + 20, 25, ChatFormatting.GOLD.getColor());
+        drawString(matrixStack, this.font, new TranslatableComponent("gui.nekeys.voice_commands.rule"), x + 60, 25, ChatFormatting.GOLD.getColor());
         super.render(matrixStack, mX, mouseY, partialTicks);
 
-        //drawHorizontalLine(this.width / 2 - 175, this.width / 2 - 175 + 330, this.height - 30, 0xFFFFFFFF);
         if (activeSettings != null) {
             activeSettings.draw(matrixStack, mouseX, mouseY, partialTicks);
         }
     }
 
     public class GuiVoiceCommandSettings {
-        private GuiVoiceCommandList.CommandEntry commandEntry;
+        private final GuiVoiceCommandList.CommandEntry commandEntry;
         private AbstractPopup voiceCommandPopup;
-        private DropDownList<Class<? extends IVoiceCommand>> dropDownList;
+        private final DropDownList<Class<? extends IVoiceCommand>> dropDownList;
         private Class<? extends IVoiceCommand> lastSelection;
         private Button saveButton;
 
@@ -195,36 +199,34 @@ public class GuiVoiceCommand extends Screen {
                 }
             });
             dropDownList.optionsList.sort((o1, o2) -> dropDownList.stringifier.toString(o1).compareToIgnoreCase(dropDownList.stringifier.toString(o2)));
-            this.saveButton = new BetterButton(width / 2 + 100 - 45, height / 2 + 60 - 25, 40, 20, new StringTextComponent("Save"), button -> {
+            this.saveButton = new ScaleableButton(width / 2 + 100 - 45, height / 2 + 60 - 25, 40, 20, new TextComponent("Save"), button -> {
                 saveButton.playDownSound(Minecraft.getInstance().getSoundManager());
                 commandEntry.setCommand(voiceCommandPopup.getCommand());
                 activeSettings = null;
             });
         }
 
-        public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
             fill(matrixStack, 0, 0, width, height, 0x77000000);
-            fill(matrixStack, width / 2 - 101, height / 2 - 61, width / 2 + 102, height / 2 + 61, 0xFFFFFFFF);
-            //drawRect(width/2 - 100, height/2 - 60, width/2 + 100, height/2 + 60, 0xFF000000);
+            fill(matrixStack, width / 2 - 101, height / 2 - 61, width / 2 + 101, height / 2 + 61, 0xFFFFFFFF);
 
             double dialogX = width / 2D - 100;
             double dialogY = height / 2D - 60;
-            double dialogWidth = 200;
-            double dialogHeight = 120;
+            float dialogWidth = 200;
+            float dialogHeight = 120;
 
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder bufferbuilder = tessellator.getBuilder();
-            minecraft.getTextureManager().bind(new ResourceLocation("textures/block/oak_planks.png"));
-            GlStateManager._color4f(1F, 1F, 1F, 1F);
-            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-            bufferbuilder.vertex(dialogX, dialogY + dialogHeight, 0).uv(0, height / 64F).color(150, 150, 150, 255).endVertex();
-            bufferbuilder.vertex(dialogX + dialogWidth, dialogY + dialogHeight, 0).uv(width / 64F, height / 64F).color(150, 150, 150, 255).endVertex();
-            bufferbuilder.vertex(dialogX + dialogWidth, dialogY, 0).uv(width / 64F, 0).color(150, 150, 150, 255).endVertex();
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder bufferbuilder = tesselator.getBuilder();
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShaderTexture(0, new ResourceLocation("textures/block/oak_planks.png"));
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.vertex(dialogX, dialogY + dialogHeight, 0).uv(0, dialogHeight / 32F).color(150, 150, 150, 255).endVertex();
+            bufferbuilder.vertex(dialogX + dialogWidth, dialogY + dialogHeight, 0).uv(dialogWidth / 32F, dialogHeight / 32F).color(150, 150, 150, 255).endVertex();
+            bufferbuilder.vertex(dialogX + dialogWidth, dialogY, 0).uv(dialogWidth / 32F, 0).color(150, 150, 150, 255).endVertex();
             bufferbuilder.vertex(dialogX, dialogY, 0).uv(0, 0).color(150, 150, 150, 255).endVertex();
-            tessellator.end();
+            tesselator.end();
 
-            //this.saveButton.x = width / 2 + 100 - 45;
-            //this.saveButton.y = height / 2 + 60 - 23;
             saveButton.render(matrixStack, mouseX, mouseY, partialTicks);
 
             if (lastSelection != dropDownList.selection) {

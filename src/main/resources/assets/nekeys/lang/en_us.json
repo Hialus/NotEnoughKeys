@@ -26,6 +26,7 @@
   "gui.nekeys.clone": "Clone",
   "gui.nekeys.reload": "Reload",
   "gui.nekeys.createNew": "Create new",
+  "gui.nekeys.voice_commands.popup": "Show the Voice Commands UI",
   "gui.nekeys.voice_commands.title": "Voice Commands",
   "gui.nekeys.voice_commands.name": "Name",
   "gui.nekeys.voice_commands.rule": "Command rule",

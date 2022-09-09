@@ -229,7 +229,7 @@
 
     <component name="jsgfGrammar" type="edu.cmu.sphinx.jsgf.JSGFGrammar">
         <property name="dictionary" value="dictionary"/>
-        <property name="grammarLocation" value="modjar://nekeys/assets/nekeys/voice/"/>
+        <property name="grammarLocation" value="rsc://nekeys/assets/nekeys/voice/"/>
         <property name="grammarName" value="blank"/>
         <property name="addSilenceWords" value="true"/>
     </component>
@@ -246,7 +246,7 @@
         <property name="dictionaryPath" value="rsc:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict"/>
         <property name="fillerPath" value="rsc:/edu/cmu/sphinx/models/en-us/en-us/noisedict"/>
         <property name="unitManager" value="unitManager"/>
-        <property name="addenda" value="modjar://nekeys/assets/nekeys/voice/minecraft.dict"/>
+        <property name="addenda" value="rsc://nekeys/assets/nekeys/voice/minecraft.dict"/>
     </component>
 
     <component name="acousticModel"

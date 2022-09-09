@@ -5,6 +5,9 @@ import de.morrien.nekeys.api.command.AbstractVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.voice.popup.EmptyPopup;
 
+/**
+ * Created by Timor Morrien
+ */
 public class EmptyVoiceCommand extends AbstractVoiceCommand {
 
     public EmptyVoiceCommand() {

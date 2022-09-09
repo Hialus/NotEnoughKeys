@@ -1,6 +1,6 @@
 package de.morrien.nekeys.gui.voice.popup;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.popup.AbstractPopup;
 import de.morrien.nekeys.gui.DropDownList;
@@ -31,7 +31,7 @@ public class SelectPresetPopup extends AbstractPopup {
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         presetDropDown.x = x + 5;
         presetDropDown.y = y + 2;
         presetDropDown.width = width - 10;

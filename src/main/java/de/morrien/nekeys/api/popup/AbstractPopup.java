@@ -1,16 +1,16 @@
 package de.morrien.nekeys.api.popup;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.morrien.nekeys.api.command.IVoiceCommand;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 
 /**
  * Represents a popup for a VoiceCommand. This popup will be presented to user to change the settings of the command
  *
  * @author Timor Morrien
  */
-public abstract class AbstractPopup extends AbstractGui implements IGuiEventListener {
+public abstract class AbstractPopup extends GuiComponent implements GuiEventListener {
     protected String name;
     protected String rule;
 
@@ -24,7 +24,7 @@ public abstract class AbstractPopup extends AbstractGui implements IGuiEventList
         this.rule = voiceCommand.getRuleContent();
     }
 
-    public abstract void draw(MatrixStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks);
+    public abstract void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks);
 
     public String getName() {
         return name;

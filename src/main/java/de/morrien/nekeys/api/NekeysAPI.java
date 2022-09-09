@@ -8,6 +8,8 @@ import static de.morrien.nekeys.NotEnoughKeys.instance;
 /**
  * Main class for using the Not Enough Keys API
  * IMPORTANT: As this mod is still under active development, so the API will change in the future.
+ *
+ * @author Timor Morrien
  */
 public class NekeysAPI {
 

@@ -7,9 +7,12 @@ import de.morrien.nekeys.api.popup.AbstractPopup;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
 
+/**
+ * Created by Timor Morrien
+ */
 @SuppressWarnings("unchecked")
 public class FactoryMap {
-    private HashMap<Class<? extends IVoiceCommand>, VoiceCommandFactory<? extends IVoiceCommand>> map;
+    private final HashMap<Class<? extends IVoiceCommand>, VoiceCommandFactory<? extends IVoiceCommand>> map;
 
     public FactoryMap() {
         map = new HashMap<>();

@@ -1,5 +1,10 @@
 package de.morrien.nekeys.voice;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
+import com.mojang.blaze3d.platform.InputConstants;
 import de.morrien.nekeys.Keybindings;
 import de.morrien.nekeys.NotEnoughKeys;
 import de.morrien.nekeys.api.VoiceCommandFactory;
@@ -7,9 +12,9 @@ import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.command.IVoiceCommandTickable;
 import de.morrien.nekeys.voice.command.OpenGuiVoiceCommand;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.InputMappings;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,16 +27,22 @@ import static de.morrien.nekeys.NotEnoughKeys.logger;
  */
 public class VoiceHandler {
 
+    private final Path oldConfigFile;
+    private final Path configFile;
+    private final Gson gson;
+    private final Type voiceCommandListType;
     public FactoryMap factoryMap;
     public int tickBuffer;
     private SpeechRecognizer recognizer;
     private List<IVoiceCommand> voiceCommands;
-    private Path configFile;
 
     public VoiceHandler() {
+        gson = new GsonBuilder().registerTypeAdapter(IVoiceCommand.class, new VoiceCommandTypeAdapter<>()).create();
+        voiceCommandListType = new TypeToken<List<IVoiceCommand>>() {}.getType();
         voiceCommands = new ArrayList<>();
         factoryMap = new FactoryMap();
-        configFile = NotEnoughKeys.instance.configDirectory.resolve("voice.config");
+        oldConfigFile = NotEnoughKeys.instance.configDirectory.resolve("voice.config");
+        configFile = NotEnoughKeys.instance.configDirectory.resolve("voice_commands.json");
     }
 
     public void init() {
@@ -44,7 +55,7 @@ public class VoiceHandler {
     }
 
     public void tickUpdate() {
-        if (InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), Keybindings.PUSH_TO_TALK.getKey().getValue())) {
+        if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), Keybindings.PUSH_TO_TALK.getKey().getValue())) {
             if (!recognizer.recording) {
                 recognizer.recording = true;
                 tickBuffer = 20;
@@ -80,19 +91,34 @@ public class VoiceHandler {
     }
 
     public void reloadConfig() {
-        if (Files.exists(configFile)) {
+        logger.info("Reloading voice commands config.");
+        if (Files.exists(oldConfigFile)) {
+            logger.info("Found old voice config file. Converting to new format.");
             try {
                 voiceCommands = new ArrayList<>();
-                List<String> lines = Files.readAllLines(configFile);
+                List<String> lines = Files.readAllLines(oldConfigFile);
                 for (String line : lines) {
                     IVoiceCommand cmd = parseLineToVoiceCommand(line);
                     if (cmd != null) voiceCommands.add(cmd);
                 }
+                logger.info("Read " + voiceCommands.size() + " voice commands. Saving...");
+                saveConfig();
+                logger.info("Voice config file converted. Deleting old file.");
+                Files.delete(oldConfigFile);
+                logger.info("Old voice config file deleted.");
             } catch (IOException e) {
-                logger.error("Could not read voice.config. Settings were not loaded!");
-                logger.error(e.toString());
+                logger.error("Could not read old voice.config. Settings were not loaded!", e);
+            }
+        } else if (Files.exists(configFile)) {
+            try {
+                var json = String.join("\n", Files.readAllLines(configFile));
+                voiceCommands = gson.fromJson(json, voiceCommandListType);
+                logger.info("Read " + voiceCommands.size() + " voice commands.");
+            } catch (IOException e) {
+                logger.error("Could not read voice_commands.json. Settings were not loaded!", e);
             }
         } else {
+            logger.info("No voice command file found. Creating default command.");
             voiceCommands = new ArrayList<>();
             voiceCommands.add(new OpenGuiVoiceCommand("voice", "[open] ((voice settings)|(voice)|(speech settings))", OpenGuiVoiceCommand.AllowedGuis.VOICE_COMMANDS));
             saveConfig();
@@ -100,26 +126,16 @@ public class VoiceHandler {
     }
 
     public void saveConfig() {
-        List<String> configLines = new ArrayList<>();
-        for (IVoiceCommand voiceCommand : voiceCommands) {
-            List<String> params = voiceCommand.getConfigParams();
-            params.add(0, voiceCommand.getClass().getName());
-            StringBuilder builder = new StringBuilder();
-            for (String param : params) {
-                builder.append(param).append(":");
-            }
-            builder.replace(builder.length() - 1, builder.length(), "");
-            configLines.add(builder.toString());
-        }
         try {
-            Files.write(configFile, configLines);
-        } catch (IOException e) {
-            logger.warn("Unable to save config file");
-            logger.warn(e.toString());
+            var json = gson.toJson(voiceCommands, voiceCommandListType);
+            Files.write(configFile, json.getBytes());
+        } catch (IOException | JsonParseException e) {
+            logger.warn("Unable to save config file", e);
         }
     }
 
-    public IVoiceCommand parseLineToVoiceCommand(String line) {
+    @Deprecated
+    private IVoiceCommand parseLineToVoiceCommand(String line) {
         String[] splitLine = line.split(":");
         if (splitLine.length == 0) return null;
         final IVoiceCommand[] command = new IVoiceCommand[1];

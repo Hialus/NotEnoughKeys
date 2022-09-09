@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * A implementation of {@link IVoiceCommand} that takes care of the name and rule related stuff.
+ * An implementation of {@link IVoiceCommand} that takes care of the name and rule related stuff.
  *
  * @author Timor Morrien
  */
