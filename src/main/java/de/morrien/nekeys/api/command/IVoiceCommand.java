@@ -70,6 +70,7 @@ public interface IVoiceCommand {
      */
     default String getCleanedRuleContent(List<IVoiceCommand> commands) {
         String clean = getRuleContent()
+                .toLowerCase()
                 .replaceAll(" \\[", " ?(")
                 .replaceAll("\\[", "(")
                 .replaceAll("\\)\\*", " ?)*")
@@ -84,6 +85,8 @@ public interface IVoiceCommand {
             if (!matcher.matches())
                 break;
             String group = matcher.group(1);
+            if (getName().equals(group))
+                return "";
             for (IVoiceCommand command : commands) {
                 if (command.getName().equals(group)) {
                     clean = clean.replaceAll("<" + group + ">", "(" + command.getCleanedRuleContent(commands) + ")");
@@ -91,8 +94,6 @@ public interface IVoiceCommand {
                 }
             }
         }
-        //clean = clean.replaceAll(" ", " ?");
-        //System.out.println(getName() + ": " + clean);
         return clean;
     }
 }

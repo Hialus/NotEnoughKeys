@@ -5,7 +5,7 @@ import de.morrien.nekeys.api.NekeysAPI;
 import de.morrien.nekeys.gui.KeyBindsScreenInjector;
 import de.morrien.nekeys.gui.voice.GuiVoiceCommand;
 import de.morrien.nekeys.preset.PresetManager;
-import de.morrien.nekeys.url.NekeysURLStreamHandler;
+import de.morrien.nekeys.util.NekeysURLStreamHandler;
 import de.morrien.nekeys.voice.VoiceHandler;
 import de.morrien.nekeys.voice.command.*;
 import net.minecraft.client.Minecraft;
@@ -46,6 +46,7 @@ public class NotEnoughKeys {
     public PresetManager presetManager;
     private boolean openGUI = false;
 
+    @SuppressWarnings("unchecked")
     public NotEnoughKeys() {
         instance = this;
 

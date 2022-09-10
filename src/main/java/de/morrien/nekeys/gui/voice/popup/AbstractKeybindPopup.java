@@ -28,8 +28,8 @@ public abstract class AbstractKeybindPopup extends AbstractPopup {
     }
 
     protected void init() {
-        keyBindingDropDown = new DropDownList<>(0, 0, 0, 18, 6);
-        keyBindingDropDown.stringifier = keyBinding -> I18n.get(keyBinding.getName());
+        keyBindingDropDown = new DropDownList<>(0, 0, 0, 18, 5, keyBinding -> I18n.get(keyBinding.getName()));
+        keyBindingDropDown.showSearch = true;
         keyBindingDropDown.optionsList.addAll(Arrays.asList(Minecraft.getInstance().options.keyMappings));
     }
 
@@ -37,8 +37,8 @@ public abstract class AbstractKeybindPopup extends AbstractPopup {
     public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         keyBindingDropDown.x = x + 5;
         keyBindingDropDown.y = y + 2;
-        keyBindingDropDown.width = width - 10;
-        keyBindingDropDown.draw(matrixStack);
+        keyBindingDropDown.setWidth(width - 10);
+        keyBindingDropDown.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -49,5 +49,20 @@ public abstract class AbstractKeybindPopup extends AbstractPopup {
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
         return keyBindingDropDown.mouseScrolled(pMouseX, pMouseY, pDelta);
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        return keyBindingDropDown.keyPressed(pKeyCode, pScanCode, pModifiers);
+    }
+
+    @Override
+    public boolean keyReleased(int pKeyCode, int pScanCode, int pModifiers) {
+        return keyBindingDropDown.keyReleased(pKeyCode, pScanCode, pModifiers);
+    }
+
+    @Override
+    public boolean charTyped(char pCodePoint, int pModifiers) {
+        return keyBindingDropDown.charTyped(pCodePoint, pModifiers);
     }
 }

@@ -10,7 +10,6 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * Created by Timor Morrien
@@ -30,24 +29,22 @@ public class OpenGuiPopup extends AbstractPopup {
     }
 
     protected void init() {
-        guiDropDown = new DropDownList<>(0, 0, 0, 18, 6);
+        guiDropDown = new DropDownList<>(0, 0, 0, 18, 5);
         guiDropDown.stringifier = gui -> I18n.get(gui.unlocalizedName);
         guiDropDown.optionsList.addAll(
-                Arrays
-                        .stream(OpenGuiVoiceCommand.AllowedGuis.values())
-                        .filter(OpenGuiVoiceCommand.AllowedGuis::active)
-                        .collect(Collectors.toList())
+                Arrays.stream(OpenGuiVoiceCommand.AllowedGuis.values())
+                        .filter(OpenGuiVoiceCommand.AllowedGuis::active).toList()
         );
     }
 
     @Override
     public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(matrixStack, Minecraft.getInstance().font, new TranslatableComponent("gui.nekey.popup.selectPreset"), x + 6, y + 4, 0xFFFFFFFF);
+        drawString(matrixStack, Minecraft.getInstance().font, new TranslatableComponent("gui.nekeys.popup.selectGui"), x + 6, y + 3, 0xFFFFFFFF);
 
         guiDropDown.x = x + 5;
-        guiDropDown.y = y + 16;
-        guiDropDown.width = width - 10;
-        guiDropDown.draw(matrixStack);
+        guiDropDown.y = y + 14;
+        guiDropDown.setWidth(width - 10);
+        guiDropDown.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
 

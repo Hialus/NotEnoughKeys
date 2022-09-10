@@ -37,7 +37,7 @@
 //
 //    @Override
 //    public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-//        drawString(matrixStack, Minecraft.getInstance().font, new TranslatableComponent("gui.nekey.popup.psi.selectSlot"), x + 6, y + 4, 0xFFFFFFFF);
+//        drawString(matrixStack, Minecraft.getInstance().font, new TranslatableComponent("gui.nekeys.popup.psi.selectSlot"), x + 6, y + 4, 0xFFFFFFFF);
 //
 //        ResourceLocation rs = new ResourceLocation("nekeys", "textures/gui/psi_circle.png");
 //        Minecraft.getInstance().getTextureManager().bind(rs);

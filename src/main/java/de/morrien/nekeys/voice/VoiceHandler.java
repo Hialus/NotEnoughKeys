@@ -10,7 +10,11 @@ import de.morrien.nekeys.NotEnoughKeys;
 import de.morrien.nekeys.api.VoiceCommandFactory;
 import de.morrien.nekeys.api.command.IVoiceCommand;
 import de.morrien.nekeys.api.command.IVoiceCommandTickable;
+import de.morrien.nekeys.util.KeyMappingTypeAdapter;
+import de.morrien.nekeys.util.VoiceCommandTypeAdapter;
+import de.morrien.nekeys.util.RuleUtil;
 import de.morrien.nekeys.voice.command.OpenGuiVoiceCommand;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 
 import java.io.IOException;
@@ -37,7 +41,10 @@ public class VoiceHandler {
     private List<IVoiceCommand> voiceCommands;
 
     public VoiceHandler() {
-        gson = new GsonBuilder().registerTypeAdapter(IVoiceCommand.class, new VoiceCommandTypeAdapter<>()).create();
+        gson = new GsonBuilder()
+                .registerTypeAdapter(IVoiceCommand.class, new VoiceCommandTypeAdapter<>())
+                .registerTypeHierarchyAdapter(KeyMapping.class, new KeyMappingTypeAdapter())
+                .create();
         voiceCommandListType = new TypeToken<List<IVoiceCommand>>() {}.getType();
         voiceCommands = new ArrayList<>();
         factoryMap = new FactoryMap();
@@ -80,7 +87,6 @@ public class VoiceHandler {
             for (IVoiceCommand voiceKeybind : voiceCommands) {
                 if (voiceKeybind.isValidCommand(command)) {
                     voiceKeybind.activate(command);
-                    break;
                 }
             }
         }
@@ -151,7 +157,13 @@ public class VoiceHandler {
         boolean enabled = recognizer.isEnabled();
         if (enabled) recognizer.setEnabled(false);
         recognizer.removeAllRules();
-        voiceCommands.forEach((voiceCommand) -> recognizer.setRule(voiceCommand.getName(), voiceCommand.getRuleContent()));
+        voiceCommands.forEach((voiceCommand) -> {
+            if (RuleUtil.isRuleValid(voiceCommand.getName(), voiceCommand.getRuleContent(), voiceCommands)) {
+                recognizer.setRule(voiceCommand.getName().toLowerCase(), voiceCommand.getRuleContent().toLowerCase());
+            } else {
+                logger.warn("Rule for voice command " + voiceCommand.getName() + " is invalid. Command will not be recognized.");
+            }
+        });
         if (enabled) recognizer.setEnabled(true);
     }
 

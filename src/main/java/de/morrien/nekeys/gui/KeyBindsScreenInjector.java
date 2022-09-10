@@ -54,7 +54,7 @@ public class KeyBindsScreenInjector {
 
     @NotNull
     private static Button createPresetButton(PresetManager presetManager, int presetID) {
-        return new ScaleableButton(
+        return new ScalableButton(
                 currentKeyBindsScreen.width / 2 - 155 + 71 + (presetID - 1) * 28,
                 21,
                 20,
@@ -72,7 +72,7 @@ public class KeyBindsScreenInjector {
 
     @NotNull
     private static Button createExtenderButton() {
-        Button extenderButton = new ScaleableButton(currentKeyBindsScreen.width / 2 - 151, 5, 14, 14, plus, KeyBindsScreenInjector::togglePresetButtons, KeyBindsScreenInjector::renderExtenderButtonTooltip);
+        Button extenderButton = new ScalableButton(currentKeyBindsScreen.width / 2 - 151, 5, 14, 14, plus, KeyBindsScreenInjector::togglePresetButtons, KeyBindsScreenInjector::renderExtenderButtonTooltip);
         extenderButton.setFGColor(0x55FF55);
         return extenderButton;
     }
@@ -110,7 +110,7 @@ public class KeyBindsScreenInjector {
     private static Button createVoiceCommandsButton() {
         var text = new TranslatableComponent("gui.nekeys.voice_commands.title");
 
-        return new ScaleableButton(currentKeyBindsScreen.width / 2 + 88, 5, 100, 14, text, KeyBindsScreenInjector::toggleVoiceCommandsButtons, KeyBindsScreenInjector::renderVoiceCommandsButtonTooltip);
+        return new ScalableButton(currentKeyBindsScreen.width / 2 + 88, 5, 100, 14, text, KeyBindsScreenInjector::toggleVoiceCommandsButtons, KeyBindsScreenInjector::renderVoiceCommandsButtonTooltip);
     }
 
     private static void toggleVoiceCommandsButtons(Button button) {

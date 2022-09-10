@@ -72,8 +72,8 @@ package de.morrien.nekeys.gui.voice.popup.thaumcraft;
 //
 //    @Override
 //    public void draw(int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-//        drawString(Minecraft.getInstance().fontRenderer, I18n.format("gui.nekey.popup.thaumcraft.selectFocus"), x + 6, y + 4, fociDropDown.disabled ? 0xA0A0A0 : 0xFFFFFFFF);
-//        Minecraft.getInstance().fontRenderer.drawSplitString(I18n.format("gui.nekey.popup.thaumcraft.unavailable"), x + 10, y + 40, width - 20, 0xFFFFFFFF);
+//        drawString(Minecraft.getInstance().fontRenderer, I18n.format("gui.nekeys.popup.thaumcraft.selectFocus"), x + 6, y + 4, fociDropDown.disabled ? 0xA0A0A0 : 0xFFFFFFFF);
+//        Minecraft.getInstance().fontRenderer.drawSplitString(I18n.format("gui.nekeys.popup.thaumcraft.unavailable"), x + 10, y + 40, width - 20, 0xFFFFFFFF);
 //
 //        fociDropDown.x = x + 6;
 //        fociDropDown.y = y + 16;

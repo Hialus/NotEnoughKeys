@@ -1,4 +1,4 @@
-package de.morrien.nekeys.url;
+package de.morrien.nekeys.util;
 
 import de.morrien.nekeys.NotEnoughKeys;
 

@@ -34,8 +34,8 @@ public class SelectPresetPopup extends AbstractPopup {
     public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         presetDropDown.x = x + 5;
         presetDropDown.y = y + 2;
-        presetDropDown.width = width - 10;
-        presetDropDown.draw(matrixStack);
+        presetDropDown.setWidth(width - 10);
+        presetDropDown.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     @Override

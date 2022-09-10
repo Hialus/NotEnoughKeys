@@ -1,4 +1,4 @@
-package de.morrien.nekeys.voice;
+package de.morrien.nekeys.util;
 
 import com.google.gson.*;
 import de.morrien.nekeys.api.command.IVoiceCommand;

@@ -7,7 +7,8 @@ import com.mojang.blaze3d.vertex.*;
 import de.morrien.nekeys.NotEnoughKeys;
 import de.morrien.nekeys.Reference;
 import de.morrien.nekeys.api.command.IVoiceCommand;
-import de.morrien.nekeys.gui.ScaleableButton;
+import de.morrien.nekeys.gui.ScalableButton;
+import de.morrien.nekeys.util.RuleUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
@@ -22,9 +23,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Timor Morrien
@@ -124,7 +123,6 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, new ResourceLocation("textures/block/jungle_planks.png"));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        // TODO: Was 7
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         bufferbuilder.vertex(0, this.height, 0).uv(0, this.height / 32F).color(150, 150, 150, 255).endVertex();
         bufferbuilder.vertex(this.width, this.height, 0).uv(this.width / 32F, this.height / 32F).color(150, 150, 150, 255).endVertex();
@@ -135,6 +133,10 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
 
     @Override
     protected void renderList(PoseStack pPoseStack, int pX, int pY, int pMouseX, int pMouseY, float pPartialTick) {
+        this.checkNames();
+        for (CommandEntry row : rows()) {
+            row.checkValid();
+        }
         super.renderList(pPoseStack, pX, pY, pMouseX, pMouseY, pPartialTick);
         this.renderTopAndBottom();
     }
@@ -178,6 +180,17 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
         return this.children();
     }
 
+    private void checkNames() {
+        for (CommandEntry listEntry : rows()) {
+            listEntry.nameTextField.setTextColor(0xFFFFFF);
+            for (CommandEntry listEntry2 : rows()) {
+                if (listEntry != listEntry2 && listEntry.nameTextField.getValue().equals(listEntry2.nameTextField.getValue())) {
+                    listEntry.nameTextField.setTextColor(0xFF0000);
+                }
+            }
+        }
+    }
+
     /**
      * A list @see{GuiListExtended.IGuiListEntry} to display a VoiceCommand
      */
@@ -185,8 +198,8 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
     public class CommandEntry extends Entry<CommandEntry> {
         private final Button btnDelete;
         private final Button btnEdit;
-        private final ScaleableButton upButton;
-        private final ScaleableButton downButton;
+        private final ScalableButton upButton;
+        private final ScalableButton downButton;
         private final EditBox nameTextField;
         private final EditBox ruleTextField;
         private final ResourceLocation settingsIcon = new ResourceLocation(Reference.MODID, "textures/gui/settings.png");
@@ -194,20 +207,18 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
 
         private CommandEntry(IVoiceCommand command) {
             this.command = command;
-            this.btnDelete = new ScaleableButton(0, 0, 50, 20, new TranslatableComponent("selectServer.delete"), this::deleteAction);
-            this.btnEdit = new ScaleableButton(0, 0, 20, 20, new TextComponent("E"), this::editAction, (button, matrixStack, mouseX, mouseY) -> {
+            this.btnDelete = new ScalableButton(0, 0, 50, 20, new TranslatableComponent("selectServer.delete"), this::deleteAction);
+            this.btnEdit = new ScalableButton(0, 0, 20, 20, new TextComponent("E"), this::editAction, (button, matrixStack, mouseX, mouseY) -> {
                 gui.renderTooltip(matrixStack, Minecraft.getInstance().font.split(new TranslatableComponent("gui.nekeys.voice_commands.settings"), Math.max(gui.width / 2 - 43, 170)), mouseX, mouseY + 10);
             });
-            this.upButton = new ScaleableButton(0, 0, 10, 10, new TextComponent("\u25B2"), this::moveUpAction);
-            this.downButton = new ScaleableButton(0, 0, 10, 10, new TextComponent("\u25BC"), this::moveDownAction);
+            this.upButton = new ScalableButton(0, 0, 10, 10, new TextComponent("\u25B2"), this::moveUpAction);
+            this.downButton = new ScalableButton(0, 0, 10, 10, new TextComponent("\u25BC"), this::moveDownAction);
 
             this.nameTextField = new EditBox(Minecraft.getInstance().font, 0, 0, 40, 18, TextComponent.EMPTY);
             this.nameTextField.setValue(command.getName());
             this.ruleTextField = new EditBox(Minecraft.getInstance().font, 0, 0, 200, 18, TextComponent.EMPTY);
             this.ruleTextField.setMaxLength(Integer.MAX_VALUE);
             this.ruleTextField.setValue(command.getRuleContent());
-            checkValid(ruleTextField.getValue());
-            checkName();
         }
 
         @Override
@@ -247,11 +258,8 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
         public void render(PoseStack matrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
             command.setName(nameTextField.getValue());
             if (!ruleTextField.getValue().equals(command.getRuleContent())) {
-                String text = ruleTextField.getValue();
-                checkValid(text);
                 command.setRuleContent(ruleTextField.getValue());
             }
-            checkName();
             GlStateManager._disableDepthTest();
             int x = gui.width / 2 - 340 / 2;
             int y = pTop;
@@ -293,55 +301,9 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
             }
         }
 
-        private boolean checkValid(String text) {
-            boolean valid = true;
-            String reducedText = text.replaceAll("[\\[\\]<>()|+*]", " ");
-            String[] words = reducedText.split(" ");
-            for (String word : words) {
-                if (word.matches(" *")) continue;
-                if (!NotEnoughKeys.instance.voiceHandler.getRecognizer().isWord(word)) {
-                    valid = false;
-                }
-            }
-            Map<String, Integer> map = new HashMap<>();
-            map.put("[]", 0);
-            map.put("()", 0);
-            map.put("<>", 0);
-
-            char[] charArray = text.toCharArray();
-            for (int i = 0; i < charArray.length && valid; i++) {
-                char c = charArray[i];
-                switch (c) {
-                    case '[':
-                        map.put("[]", map.get("[]") + 1);
-                        break;
-                    case ']':
-                        map.put("[]", map.get("[]") - 1);
-                        if (map.get("[]") < 0)
-                            valid = false;
-                        break;
-                    case '(':
-                        map.put("()", map.get("()") + 1);
-                        break;
-                    case ')':
-                        map.put("()", map.get("()") - 1);
-                        if (map.get("()") < 0)
-                            valid = false;
-                        break;
-                    case '<':
-                        map.put("<>", map.get("<>") + 1);
-                        break;
-                    case '>':
-                        map.put("<>", map.get("<>") - 1);
-                        if (map.get("<>") < 0)
-                            valid = false;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if (map.get("[]") != 0 || map.get("()") != 0 || map.get("<>") != 0)
-                valid = false;
+        private boolean checkValid() {
+            var text = ruleTextField.getValue().toLowerCase();
+            boolean valid = RuleUtil.isRuleValid(nameTextField.getValue(), text, GuiVoiceCommandList.this.children().stream().map(e -> e.command).toList());
 
             // Set color
             if (valid)
@@ -349,17 +311,6 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
             else
                 ruleTextField.setTextColor(0xFF0000);
             return valid;
-        }
-
-        private void checkName() {
-            for (CommandEntry listEntry : rows()) {
-                listEntry.nameTextField.setTextColor(0xFFFFFF);
-                for (CommandEntry listEntry2 : rows()) {
-                    if (listEntry != listEntry2 && listEntry.nameTextField.getValue().equals(listEntry2.nameTextField.getValue())) {
-                        listEntry.nameTextField.setTextColor(0xFF0000);
-                    }
-                }
-            }
         }
 
         @Override

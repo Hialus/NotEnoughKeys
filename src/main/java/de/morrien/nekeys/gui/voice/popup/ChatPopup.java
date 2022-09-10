@@ -34,7 +34,7 @@ public class ChatPopup extends AbstractPopup {
 
     @Override
     public void draw(PoseStack matrixStack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        drawString(matrixStack, Minecraft.getInstance().font, new TranslatableComponent("gui.nekey.popup.chat"), x + 6, y + 4, 0xFFFFFFFF);
+        drawString(matrixStack, Minecraft.getInstance().font, new TranslatableComponent("gui.nekeys.popup.chat"), x + 6, y + 4, 0xFFFFFFFF);
         chatMessageTextField.x = x + 6;
         chatMessageTextField.y = y + 16;
         chatMessageTextField.setWidth(width - 12);
