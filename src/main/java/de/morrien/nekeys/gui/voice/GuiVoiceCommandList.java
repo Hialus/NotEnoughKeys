@@ -70,6 +70,7 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         if (activeTextField == null || !activeTextField.mouseClicked(pMouseX, pMouseY, pButton)) {
+            activeTextField = null;
             return super.mouseClicked(pMouseX, pMouseY, pButton);
         }
         return true;
