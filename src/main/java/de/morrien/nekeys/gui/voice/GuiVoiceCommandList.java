@@ -281,11 +281,11 @@ public class GuiVoiceCommandList extends ContainerObjectSelectionList<GuiVoiceCo
 
             this.upButton.x = x + 278;
             this.upButton.y = y;
-            this.upButton.fontScale = 0.9;
+            this.upButton.fontScale = 0.8f;
             this.upButton.render(matrixStack, pMouseX, pMouseY, pPartialTicks);
             this.downButton.x = x + 278;
             this.downButton.y = y + 10;
-            this.downButton.fontScale = 0.9;
+            this.downButton.fontScale = 0.8f;
             this.downButton.render(matrixStack, pMouseX, pMouseY, pPartialTicks);
 
             this.btnDelete.x = x + 280 + 10;

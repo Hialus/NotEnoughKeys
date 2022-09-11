@@ -19,9 +19,11 @@ import net.minecraft.client.Minecraft;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static de.morrien.nekeys.NotEnoughKeys.logger;
@@ -117,7 +119,7 @@ public class VoiceHandler {
             }
         } else if (Files.exists(configFile)) {
             try {
-                var json = String.join("\n", Files.readAllLines(configFile));
+                var json = String.join("\n", Files.readAllLines(configFile, StandardCharsets.UTF_8));
                 voiceCommands = gson.fromJson(json, voiceCommandListType);
                 logger.info("Read " + voiceCommands.size() + " voice commands.");
             } catch (IOException e) {
@@ -134,7 +136,7 @@ public class VoiceHandler {
     public void saveConfig() {
         try {
             var json = gson.toJson(voiceCommands, voiceCommandListType);
-            Files.write(configFile, json.getBytes());
+            Files.write(configFile, Collections.singleton(json), StandardCharsets.UTF_8);
         } catch (IOException | JsonParseException e) {
             logger.warn("Unable to save config file", e);
         }
